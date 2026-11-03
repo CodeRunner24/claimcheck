@@ -12,6 +12,13 @@ html, body { margin: 0; background: var(--black); }
 .poster { min-height: 100vh; box-sizing: border-box; background: var(--yellow); display: flex; flex-direction: column; justify-content: space-between; padding: clamp(20px, 3.4vw, 48px); gap: 32px; }
 .poster h1 { margin: 0; font-size: clamp(56px, 11.2vw, 190px); line-height: .88; font-weight: 900; font-stretch: 75%; letter-spacing: -.02em; text-transform: uppercase; }
 .poster-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; flex-wrap: wrap; }
+.promise { font-size: clamp(30px, 5.4vw, 88px); line-height: 1.05; font-weight: 800; font-stretch: 85%; display: flex; flex-wrap: wrap; gap: 0 .35em; align-items: baseline; }
+.promise s { text-decoration: none; position: relative; }
+.promise s::after { content: ""; position: absolute; left: -2%; right: -2%; top: 54%; height: .11em; background: var(--red); transform-origin: left; animation: pen 7s infinite; }
+.promise b { color: var(--red); font-weight: 900; animation: correction 7s infinite; }
+@keyframes pen { 0%, 22% { transform: scaleX(0); } 30%, 92% { transform: scaleX(1); } 100% { transform: scaleX(0); } }
+@keyframes correction { 0%, 30% { opacity: 0; transform: translateY(.2em) rotate(-2deg); } 36%, 92% { opacity: 1; transform: rotate(-2deg); } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .promise s::after, .promise b { animation: none; } }
 .poster p { margin: 0; font-size: clamp(18px, 1.7vw, 24px); line-height: 1.28; max-width: 26em; font-weight: 500; }
 .start-btn { background: var(--black); color: var(--yellow); border: 0; border-radius: 999px; padding: 24px 42px; font-size: clamp(20px, 2vw, 28px); font-weight: 800; white-space: nowrap; transition: transform .12s; }
 .start-btn:hover { transform: scale(1.03); }
@@ -75,6 +82,9 @@ html, body { margin: 0; background: var(--black); }
 .bar-track { height: 16px; background: #0000001f; max-width: 900px; }
 .bar-track i { display: block; height: 100%; background: var(--black); transition: width .3s linear; }
 .cutting p { font-size: 16px; font-weight: 600; margin: 14px 0 0; min-height: 1.4em; }
+.cutting ul { list-style: none; margin: 34px 0 0; padding: 0; font-size: clamp(22px, 3vw, 42px); font-weight: 800; font-stretch: 85%; line-height: 1.25; }
+.cutting s { text-decoration-color: var(--red); text-decoration-thickness: .12em; opacity: .55; }
+.cutting b { color: var(--red); font-weight: 900; }
 
 /* Reveal: it looks like the product page it is */
 .page { min-height: 100vh; background: var(--white); padding: clamp(18px, 3vw, 44px); box-sizing: border-box; }
@@ -103,10 +113,13 @@ html, body { margin: 0; background: var(--black); }
 .caught li { font-size: 16px; line-height: 1.35; font-weight: 500; }
 .caught ul { margin: 0; padding: 0; list-style: none; }
 .caught s { opacity: .85; }
+.noticed { border: 3px solid var(--black); padding: 12px 14px; margin-bottom: 18px; }
+.noticed h2 { margin: 0 0 8px; font-size: 18px; font-weight: 800; font-stretch: 85%; }
+.noticed-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; font-size: 15px; font-weight: 600; padding: 4px 0; }
 .left-out { font-size: 14px; color: var(--grey); margin: 0 0 18px; line-height: 1.4; }
 .warn { background: var(--yellow); padding: 10px 14px; font-weight: 700; margin-bottom: 14px; }
-.reel-wrap { margin-top: clamp(28px, 4vw, 56px); }
-.reel-wrap h2 { font-size: clamp(22px, 2.4vw, 32px); font-weight: 800; font-stretch: 85%; margin: 0 0 12px; }
+.reel-wrap { margin-top: 18px; }
+.reel-wrap h2 { font-size: 16px; font-weight: 800; font-stretch: 85%; margin: 0 0 6px; }
 .reel { width: 100%; display: block; background: #000; }
 .small { font-size: 13px; color: var(--grey); line-height: 1.4; margin-top: 12px; }
 .machine { margin-top: 22px; font-size: 13px; color: var(--grey); }
@@ -116,6 +129,16 @@ html, body { margin: 0; background: var(--black); }
 
 .alert { position: fixed; z-index: 50; top: 10px; left: 50%; transform: translateX(-50%); max-width: 80vw; padding: 10px 16px; background: var(--red); color: var(--white); font-weight: 700; font-size: 14px; }
 .upload-plain { display: inline-block; border: 0 !important; padding: 0 !important; }
+
+/* A phone held upright: the video keeps its shape and the words sit around it, not on top of the product. */
+@media (max-aspect-ratio: 1/1) {
+  .stage { overflow: visible; }
+  .say { position: fixed; top: 12px; left: 12px; right: 96px; font-size: 26px; }
+  .done-btn { position: fixed; top: 12px; right: 12px; }
+  .tag { position: fixed; left: 12px; right: 12px; bottom: 12px; max-height: 32vh; font-size: 20px; }
+  .ticker { display: none; }
+  .sample-note { position: fixed; top: auto; bottom: 0; }
+}
 
 @media (max-width: 760px) {
   .product { grid-template-columns: 1fr; }

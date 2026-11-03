@@ -1,0 +1,103 @@
+{
+ "summary": {
+  "damaged": 6,
+  "damaged_flagged": 6,
+  "clean": 7,
+  "clean_wrongly_flagged": 0,
+  "skipped": 0,
+  "usd_total": 0.095
+ },
+ "rows": [
+  {
+   "name": "tshirt_hole",
+   "damaged": true,
+   "flags": [
+    "large torn hole on center chest"
+   ],
+   "usd": 0.0094216
+  },
+  {
+   "name": "tshirt_stain",
+   "damaged": true,
+   "flags": [
+    "large brown stain on front center"
+   ],
+   "usd": 0.006885550000000001
+  },
+  {
+   "name": "mug_chip",
+   "damaged": true,
+   "flags": [
+    "large chipped rim next to handle"
+   ],
+   "usd": 0.008914100000000001
+  },
+  {
+   "name": "shoe_tear",
+   "damaged": true,
+   "flags": [
+    "large torn open side on the shoe exposing interior"
+   ],
+   "usd": 0.009394350000000001
+  },
+  {
+   "name": "bag_rip",
+   "damaged": true,
+   "flags": [
+    "large torn hole on front pocket",
+    "dark dirt stains on blue fabric"
+   ],
+   "usd": 0.013438750000000001
+  },
+  {
+   "name": "jacket_stain",
+   "damaged": true,
+   "flags": [
+    "large dark stain on right sleeve and chest"
+   ],
+   "usd": 0.006481800000000001
+  },
+  {
+   "name": "p152",
+   "damaged": false,
+   "flags": [],
+   "usd": 0.00885235
+  },
+  {
+   "name": "p154",
+   "damaged": false,
+   "flags": [],
+   "usd": 0.00535835
+  },
+  {
+   "name": "p143",
+   "damaged": false,
+   "flags": [],
+   "usd": 0.00613835
+  },
+  {
+   "name": "p146",
+   "damaged": false,
+   "flags": [],
+   "usd": 0.0058986
+  },
+  {
+   "name": "p081",
+   "damaged": false,
+   "flags": [],
+   "usd": 0.0042809
+  },
+  {
+   "name": "p176",
+   "damaged": false,
+   "flags": [],
+   "usd": 0.005895600000000001
+  },
+  {
+   "name": "p139",
+   "damaged": false,
+   "flags": [],
+   "usd": 0.0038156
+  }
+ ]
+}

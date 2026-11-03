@@ -6,6 +6,7 @@ import base64
 import hashlib
 import html
 import json
+import shutil
 import time
 from pathlib import Path
 
@@ -29,7 +30,7 @@ def _svg(overlay: dict | None) -> str:
         return ""
     w, h = overlay["size"]
     color = MASK_COLOR.get(overlay["status"], MASK_COLOR["open"])
-    width = max(3, w // 300)
+    width = max(2, w // 260)
     shapes = "".join(
         f'<path d="{html.escape(p)}" fill="{color}" fill-opacity="{0.22 if overlay["status"] == "open" else 0.12}" '
         f'stroke="{color}" stroke-width="{width}" stroke-linejoin="round"/>'
@@ -54,6 +55,7 @@ class State(rx.State):
     listing: str = DEFAULT_LISTING
     source: str = ""
     claims: list[dict[str, str]] = []
+    noticed: list[dict[str, str]] = []
     segments: list[dict[str, str]] = []
     seen: list[str] = []
     direction: str = ""
@@ -89,7 +91,7 @@ class State(rx.State):
 
     @rx.var
     def established(self) -> list[dict[str, str]]:
-        return [c for c in self.claims if c["verdict"] in ("verified", "contradicted") and c["human"] != "disagree"]
+        return [c for c in self.claims if c["verdict"] in ("verified", "contradicted") and c["human"] != "disagree" and c["source"] != "noticed"]
 
     @rx.var
     def unproven(self) -> str:
@@ -134,6 +136,7 @@ class State(rx.State):
             "claimed": c.claimed, "reason": c.reason, "rule": c.rule, "human": c.human,
             "thumb": self._url(s, c.flat or c.evidence), "evidence": self._url(s, c.evidence), "flat": self._url(s, c.flat),
         } for c in s.claims if not (c.source == "plan" and c.verdict != rules.VERIFIED)]
+        self.noticed = [c for c in self.claims if c["source"] == "noticed"]
         self.segments = agent.listing_segments(s)
         self.seen = [c.observed or c.text for c in s.claims if c.source == "seen"]
 
@@ -182,12 +185,23 @@ class State(rx.State):
         self.reset()
         return rx.call_script("cc.micStop(); cc.stream && cc.source!=='sample' && cc.stream.getTracks().forEach(t=>t.stop())")
 
+    @staticmethod
+    def _prune() -> None:
+        """Drop sessions older than two hours, and their files."""
+        cutoff = time.time() - 2 * 3600
+        for token, session in list(SESSIONS.items()):
+            if session.created < cutoff:
+                SESSIONS.pop(token, None)
+                if session.out_dir:
+                    shutil.rmtree(session.out_dir, ignore_errors=True)
+
     @rx.event(background=True)
     async def begin(self, source: str):
         """source: camera (film and talk) | sample | typed (check a pasted listing with the camera) | upload"""
         async with self:
             if self.busy:
                 return
+            self._prune()
             token = self._token()
             folder = hashlib.sha256(f"{token}{time.time()}".encode()).hexdigest()[:16]
             typed = source == "typed" or (source == "upload" and self.pasting)
@@ -227,8 +241,9 @@ class State(rx.State):
 
     @rx.event
     def camera_result(self, result: str):
-        if result == "ok":
+        if result.startswith("ok"):
             self.camera_on = True
+            self.ratio = result.split(":", 1)[1] if ":" in result else self.ratio
             return State.maybe_roll
         self.error = f"Camera unavailable ({result.replace('error:', '')}). Upload a video instead."
         self.phase = "start"
@@ -236,7 +251,7 @@ class State(rx.State):
 
     @rx.event
     def mic_result(self, result: str):
-        if result != "ok":
+        if result != "ok" and self.phase == "live":
             self.error = f"Microphone unavailable ({result.replace('error:', '')}). You can paste a listing instead."
 
     @rx.event
@@ -327,14 +342,16 @@ class State(rx.State):
         return "wide" if claim.attempts > 0 else "far"
 
     @rx.event
-    def human_mark(self, claim_id: str, mark: str):
+    def dismiss_noticed(self, claim_id: str):
+        """The seller knows the product: a noticed flaw they reject leaves the facts, and they can edit the text."""
         s = self._session()
         if not s:
             return
         for c in s.claims:
             if c.id == claim_id:
-                c.human = mark
+                c.human = "disagree"
         self._sync(s)
+        self.noticed = [c for c in self.noticed if c["id"] != claim_id]
 
     # ---------- Uploads ----------
     @rx.event

@@ -18,3 +18,5 @@ demo/tmp/
 demo/ffmpeg.log
 uploaded_files/
 .pytest_cache/
+eval/images_real/
+eval/images_condition/

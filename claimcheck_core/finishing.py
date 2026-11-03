@@ -8,7 +8,7 @@ from . import meta_api as api
 from . import rules, take as takes, vision
 from .listening import discover, hear
 from .perception import _apply, _consider_hero, _inspect_concept, store
-from .prompts import BACKDROP_PROMPTS, CORRECT_PROMPT, WRITE_PROMPT
+from .prompts import BACKDROP_PROMPTS, CONDITION_PROMPT, CORRECT_PROMPT, WRITE_PROMPT
 from .session import Claim, Session, pretty
 
 
@@ -95,21 +95,24 @@ def correct_listing(session: Session) -> str:
         facts = [{"attribute": c.attribute, "value": pretty(c.observed) or c.claimed} for c in session.claims
                  if c.verdict == rules.VERIFIED and c.human != "disagree"]
         facts += [{"attribute": c.attribute, "value": pretty(c.observed)} for c in wrong if c.observed]
+        facts = [f for f in facts if f["attribute"] != "condition"]
         unproven = [c.text for c in session.claims if c.source == "said" and c.verdict in ("open", "not_visible")]
+        noticed = [c.observed for c in session.claims if c.source == "noticed" and c.human != "disagree"]
         prompt = WRITE_PROMPT.format(said=session.listing, facts=json.dumps(facts, ensure_ascii=False),
                                      wrong=json.dumps([c.text for c in wrong], ensure_ascii=False),
-                                     unproven=json.dumps(unproven, ensure_ascii=False))
+                                     unproven=json.dumps(unproven, ensure_ascii=False),
+                                     noticed=json.dumps(noticed, ensure_ascii=False))
     elif not wrong:
         session.corrected = session.listing
         return session.corrected
     else:
         results = json.dumps([{"claim": c.text, "verdict": c.verdict, "observed": c.observed} for c in wrong], ensure_ascii=False)
         prompt = CORRECT_PROMPT.format(listing=session.listing, results=results)
-    data = api.spark_json(prompt, purpose="write the listing", trace=session.trace, effort="medium")
+    data = api.spark_json(prompt, purpose="write the listing", trace=session.trace, effort="low")
     text = str(data.get("listing", session.listing))
     if _leaks(session, text):
         data = api.spark_json(prompt + f"\n\nYour last draft wrongly repeated: {_leaks(session, text)}. Remove those.",
-                              purpose="rewrite the listing", trace=session.trace, effort="medium")
+                              purpose="rewrite the listing", trace=session.trace, effort="low")
         text = str(data.get("listing", text))
     leaked = _leaks(session, text)
     session.leak_warning = f"Check this before publishing: the draft still mentions {', '.join(leaked)}." if leaked else ""
@@ -135,37 +138,97 @@ def make_hero(session: Session) -> None:
     session.hero_info = info
 
 
+def notice_condition(session: Session) -> None:
+    """Honesty runs both ways: flag damage the seller didn't mention, located with SAM, for them to confirm or dismiss."""
+    if session.hero_source is not None:
+        jpeg, instances, _ = session.hero_source
+        best = max(instances, key=lambda i: (i.box[2] - i.box[0]) * (i.box[3] - i.box[1]))
+        images = [jpeg, vision.crop(jpeg, best.box)]
+    elif session.first_look:
+        jpeg, images = session.first_look, [session.first_look]
+    else:
+        return
+    data = api.spark_json(CONDITION_PROMPT, images, purpose="look for damage", trace=session.trace, effort="low")
+    for issue in (data.get("issues") or [])[:3]:
+        what = str(issue.get("what", "")).strip()
+        if not what:
+            continue
+        concept = str(issue.get("sam_concept") or "damage").strip().lower()
+        found = vision.parse_sam(api.sam_raw(concept, jpeg, session.trace))
+        layers = [{"instance": i, "label": concept, "status": rules.CONTRADICTED} for i in found]
+        session.file_seq += 1
+        claim = Claim(id=f"c{session.file_seq}", text=what, attribute="condition", check="visual", claimed="", sam_concept=concept,
+                      shot_request="", source="noticed", verdict=rules.VERIFIED, observed=what, rule="model_judgement",
+                      reason="Noticed by Muse Spark and located with SAM 3.1. You decide whether it's right." if found
+                      else "Noticed by Muse Spark. SAM 3.1 could not locate it, so check this yourself.")
+        claim.evidence = store(session, "condition", vision.annotate(jpeg, layers))
+        session.claims.append(claim)
+
+
 def finish(session: Session, raw_video: bytes | None) -> None:
     """Everything after the last verdict: the listing, the honest photo, the tracked proof reel."""
     session.progress.update({"listing": 0.0, "hero": 0.0, "reel": 0.0})
+
+    def reel():
+        take = session.progress.get("take")
+        if raw_video and take is None:
+            take = takes.load(raw_video)
+        if take is not None:
+            _cut_reel(session, take)
+        session.progress["reel"] = 1.0
 
     def draft():
         correct_listing(session)
         session.progress["listing"] = 1.0
 
-    def reel_then_photo():
-        try:
-            take = session.progress.get("take")
-            if raw_video and take is None:
-                take = takes.load(raw_video)
-            if take is not None:
-                _cut_reel(session, take)
-            session.progress["reel"] = 1.0
-        finally:  # the reel may have found a better view of the product, but its failure must not cost the photo
-            make_hero(session)
-            session.progress["hero"] = 1.0
+    def photo():
+        make_hero(session)
+        session.progress["hero"] = 1.0
 
-    with ThreadPoolExecutor(max_workers=2) as pool:
-        futures = [pool.submit(f) for f in (draft, reel_then_photo)]
-        errors = [f.exception() for f in futures if f.exception()]
+    def run(*steps):
+        """Steps in one batch run together. One failed part must not cost the seller the others."""
+        with ThreadPoolExecutor(max_workers=len(steps)) as pool:
+            return [str(f.exception())[:200] for f in [pool.submit(step) for step in steps] if f.exception()]
+
+    # The draft has to know about any damage, and the photo wants the reel's best view of the product.
+    errors = run(reel, lambda: notice_condition(session)) + run(draft, photo)
+    session.progress.update({"listing": 1.0, "hero": 1.0, "reel": 1.0})
     if errors:
-        session.progress["errors"] = [str(e)[:200] for e in errors]
+        session.progress["errors"] = errors
     session.progress.pop("take", None)
 
 
+def _cross_check_counts(session: Session, take: takes.Take) -> None:
+    """A person may hold a whole set in view only once, so a disproved count is checked against the entire take."""
+    disputed = [c for c in session.claims if c.check == "count" and c.verdict == rules.CONTRADICTED]
+    if not disputed:
+        return
+    sparse = takes.subset(take, list(range(0, len(take.frames), 2)), max(1, take.fps // 2))
+    tracks = _track_all(session, sparse, list(dict.fromkeys(c.sam_concept for c in disputed)))
+    for c in disputed:
+        most, _ = takes.most_at_once(tracks.get(c.sam_concept, {}), hold=3)
+        session.video_counts[c.sam_concept] = most
+        want = rules.parse_count(c.claimed)
+        if want is not None and most >= want:
+            c.reason += f" Note: the full take shows {most} together at some point; review this."
+
+
 def _cut_reel(session: Session, take: takes.Take) -> None:
-    concepts = list(dict.fromkeys(c.sam_concept for c in session.claims if not (c.source == "plan" and c.verdict != rules.VERIFIED)))
-    tracks = _track_all(session, take, concepts)
+    """Track evidence only around the verdict moments, so finishing takes seconds, not a minute."""
+    indices = takes.moment_windows(take, session.moments)
+    clip = takes.subset(take, indices)
+    position = {index: n for n, index in enumerate(indices)}
+    moments = []
+    for m in session.moments:
+        nearest = min(indices, key=lambda i: abs(i / take.fps - m["t"]))
+        moments.append({**m, "t": position[nearest] / take.fps})
+    concepts = list(dict.fromkeys(c.sam_concept for c in session.claims
+                                  if c.source != "seen" and not (c.source == "plan" and c.verdict != rules.VERIFIED)))
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        tracked = pool.submit(_track_all, session, clip, concepts)
+        checked = pool.submit(_cross_check_counts, session, take)
+        tracks = tracked.result()
+        checked.result()
     layers = []
     for concept in concepts:
         statuses = [c.verdict for c in session.claims if c.sam_concept == concept]
@@ -173,31 +236,22 @@ def _cut_reel(session: Session, take: takes.Take) -> None:
             rules.NOT_VISIBLE if rules.NOT_VISIBLE in statuses else rules.VERIFIED)
         name = next(c.evidence_name or concept for c in session.claims if c.sam_concept == concept)
         layers.append({"frames": tracks.get(concept, {}), "status": status, "label": name})
-        n, _ = takes.most_at_once(tracks.get(concept, {}))
-        session.video_counts[concept] = n
-    # A person may hold a whole set in view only once, so a count verdict is cross-checked over the whole take.
-    for c in session.claims:
-        if c.check == "count" and c.verdict == rules.CONTRADICTED:
-            want = rules.parse_count(c.claimed)
-            if want is not None and session.video_counts.get(c.sam_concept, 0) >= want:
-                c.reason += f" Note: the full take shows {session.video_counts[c.sam_concept]} together at some point; review this."
-    # The take may hold a better complete view of the product than any tick did.
     product = session.product_concept
-    if product and product in tracks:
+    if product and product in tracks:  # the take may hold a better complete view of the product than any fired frame
         for index, instances in sorted(tracks[product].items(), key=lambda kv: -sum(i.short_side for i in kv[1]))[:30]:
-            if index < len(take.frames):
-                _consider_hero(session, take.frames[index], instances, product)
+            if index < len(clip.frames):
+                _consider_hero(session, clip.frames[index], instances, product)
     if session.out_dir is None:
         return
     session.out_dir.mkdir(parents=True, exist_ok=True)
     session.file_seq += 1
     name = f"reel_{session.file_seq}.mp4"
-    total = max(1, len(take.frames))
+    total = max(1, len(clip.frames))
 
     def tick(i: int):
         session.progress["burn"] = (i + 1) / total
 
-    takes.render_reel(take, layers, session.moments, session.out_dir / name, tick)
+    takes.render_reel(clip, layers, moments, session.out_dir / name, tick)
     session.reel = name
 
 

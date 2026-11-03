@@ -158,3 +158,27 @@ def test_shouting_labels_are_tidied_for_reading():
     assert agent.pretty("MADE IN BANGLADESH") == "Made in Bangladesh"
     assert agent.pretty("60% cotton / 40% polyester") == "60% cotton / 40% polyester"
     assert agent.pretty("") == ""
+
+
+def test_damage_is_flagged_for_the_seller_not_decided(monkeypatch):
+    image = jpeg(np.full((300, 300, 3), 120, np.uint8))
+    s = agent.Session()
+    s.hero_source = (image, [rectangle(50, 50, 250, 250)], 1)
+    monkeypatch.setattr(agent.api, "spark_json", lambda *a, **k: {"issues": [{"what": "small hole on the sleeve", "sam_concept": "hole"}]})
+    monkeypatch.setattr(agent.api, "sam_raw", lambda *a, **k: "")
+    agent.notice_condition(s)
+    assert s.claims[0].source == "noticed" and s.claims[0].rule == "model_judgement" and "could not locate" in s.claims[0].reason
+    assert s.claims[0] not in s.open_claims
+
+
+def test_a_session_stops_at_its_spending_cap():
+    s = agent.Session(spoken=True)
+    s.trace.append(agent.api.CallRecord("sam-3.1", "x", 1, 99.0))
+    assert agent.live_step(s, jpeg(np.zeros((90, 160, 3), np.uint8)))["done"] is True
+
+
+def test_only_the_moments_that_matter_are_kept():
+    clip = take.Take(b"", [b""] * 600, (10, 10), 6)  # 100 seconds
+    kept = take.moment_windows(clip, [{"t": 50.0}])
+    assert kept[0] == int(48 * 6) and kept[-1] == int(53.5 * 6) and len(kept) < 40
+    assert len(take.moment_windows(clip, [])) == 25 * 6

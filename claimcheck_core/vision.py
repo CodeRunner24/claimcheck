@@ -12,7 +12,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 from . import fastmask
 
-MAX_SIDE = 1024
+MAX_SIDE = 1280
+TICK_SIDE = 512   # live coaching frames: small enough to keep SAM under a second
 _RECORD = re.compile(
     r"(\d+)<\|box;x1=(\d+);y1=(\d+);x2=(\d+);y2=(\d+);w=(\d+);h=(\d+)(?:;c=([\d.]+))?\|>"
     r"<\|mask;x=0;y=0(?:;c=[\d.]+)?;data=(\d+),(\d+),(.*?)\|>",
@@ -40,6 +41,14 @@ def prepare_image(raw: bytes) -> bytes:
     im.thumbnail((MAX_SIDE, MAX_SIDE))
     buf = io.BytesIO()
     im.save(buf, "JPEG", quality=90)
+    return buf.getvalue()
+
+
+def shrink(jpeg: bytes, side: int = TICK_SIDE) -> bytes:
+    im = Image.open(io.BytesIO(jpeg)).convert("RGB")
+    im.thumbnail((side, side))
+    buf = io.BytesIO()
+    im.save(buf, "JPEG", quality=82)
     return buf.getvalue()
 
 

@@ -61,6 +61,32 @@ def load(raw: bytes, max_side: int = 960) -> Take:
     return Take(mp4, frames, size)
 
 
+def subset(take: Take, indices: list[int], fps: int | None = None) -> Take:
+    """A shorter clip from chosen frames, re-encoded so SAM can track it."""
+    frames = [take.frames[i] for i in indices]
+    fps = fps or take.fps
+    with tempfile.TemporaryDirectory() as d:
+        dst = Path(d) / "out.mp4"
+        w, h = take.size
+        pipe = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{w}x{h}",
+                                 "-r", str(fps), "-i", "-", "-c:v", "libx264", "-preset", "veryfast", "-crf", "24", "-pix_fmt", "yuv420p",
+                                 "-movflags", "+faststart", str(dst)], stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        for jpeg in frames:
+            pipe.stdin.write(cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR).tobytes())
+        pipe.stdin.close()
+        pipe.wait()
+        return Take(dst.read_bytes(), frames, take.size, fps)
+
+
+def moment_windows(take: Take, moments: list[dict], before: float = 2.0, after: float = 3.5, limit_seconds: float = 25.0) -> list[int]:
+    """Frame indices around the moments that matter. A seller hunting for a label for a minute needn't be tracked or rewatched."""
+    keep = set()
+    for m in moments:
+        keep.update(i for i in range(len(take.frames)) if m["t"] - before <= i / take.fps <= m["t"] + after)
+    indices = sorted(keep) or list(range(len(take.frames)))
+    return indices[:int(limit_seconds * take.fps)]
+
+
 def audio_wav(raw: bytes) -> bytes | None:
     """The clip's sound as 16 kHz mono WAV, or None if it has no audio track."""
     with tempfile.TemporaryDirectory() as d:
@@ -126,9 +152,6 @@ def render_reel(take: Take, layers: list[dict], moments: list[dict], out: Path, 
     """
     w, h = take.size
     font = vision._font(max(14, w // 62))
-    # The reel is the moments that matter, not a minute of someone hunting for a label.
-    keep = [m["t"] for m in moments]
-    wanted = (lambda sec: any(t - 2.5 <= sec <= t + 3.5 for t in keep)) if keep else (lambda sec: True)
     captions = {i: _caption(w, m["text"], STATUS_BGR.get(m["status"], STATUS_BGR["open"])) for i, m in enumerate(moments)}
     pipe = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24",
                              "-s", f"{w}x{h}", "-r", str(take.fps), "-i", "-", "-c:v", "libx264", "-preset", "veryfast",
@@ -136,8 +159,6 @@ def render_reel(take: Take, layers: list[dict], moments: list[dict], out: Path, 
                             stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
     try:
         for index, jpeg in enumerate(take.frames):
-            if not wanted(index / take.fps):
-                continue
             frame = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR)
             tint = frame.copy()
             outlines, labels = [], []

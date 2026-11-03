@@ -50,13 +50,13 @@
         cc.stream = v.captureStream ? v.captureStream() : null;
       } else {
         cc.stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false,
+          video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false,
         });
         v.srcObject = cc.stream;
         await v.play();
       }
       if (cc.stream) record(cc.stream);
-      return "ok";
+      return "ok:" + (v.videoWidth && v.videoHeight ? (v.videoWidth / v.videoHeight).toFixed(4) : "1.7780");
     } catch (e) {
       return "error:" + e.message;
     }
@@ -72,9 +72,10 @@
     if (stale) stale.remove();
   };
 
-  cc.capture = (maxSide = 1024) => {
+  cc.capture = (maxSide = 1280) => {
     const v = video();
     if (!v || !v.videoWidth) return "";
+    follow.grab();
     const c = document.createElement("canvas");
     const s = Math.min(1, maxSide / Math.max(v.videoWidth, v.videoHeight));
     c.width = Math.round(v.videoWidth * s);
@@ -164,6 +165,76 @@
     if (socket.readyState === 1) socket.send("end");
     setTimeout(() => socket.close(), 1500);
   };
+
+  // SAM answers about once a second, but a mask should stay on the object in between. Every few milliseconds, block-match
+  // the mask's region against the tiny grey copy of the exact frame SAM saw, and slide the mask by that displacement.
+  // Matching against that frame, not the previous one, means small motions add up instead of rounding away to nothing.
+  const follow = { reference: null, pending: null, svg: null, dx: 0, dy: 0, frozen: false, last: 0 };
+  const W = 320, H = 180, WIDE = 28, NEAR = 3;
+  const small = document.createElement("canvas");
+  small.width = W;
+  small.height = H;
+  const smallCtx = small.getContext("2d", { willReadFrequently: true });
+
+  function greyFrame(v) {
+    smallCtx.drawImage(v, 0, 0, W, H);
+    const d = smallCtx.getImageData(0, 0, W, H).data;
+    const g = new Uint8Array(W * H);
+    for (let i = 0; i < g.length; i++) g[i] = (d[i * 4] + d[i * 4 + 1] * 2 + d[i * 4 + 2]) >> 2;
+    return g;
+  }
+  follow.grab = () => { const v = video(); if (v && v.videoWidth) follow.pending = greyFrame(v); };
+
+  function search(reference, current, box, cx, cy, reach, step) {
+    let best = Infinity, bx = cx, by = cy;
+    for (let dy = cy - reach; dy <= cy + reach; dy += step) {
+      for (let dx = cx - reach; dx <= cx + reach; dx += step) {
+        let sad = 0, n = 0;
+        for (let y = box.y0; y < box.y1 && sad < best; y += 3) {
+          const yy = y + dy;
+          if (yy < 0 || yy >= H) continue;
+          for (let x = box.x0; x < box.x1; x += 3) {
+            const xx = x + dx;
+            if (xx < 0 || xx >= W) continue;
+            sad += Math.abs(reference[y * W + x] - current[yy * W + xx]);
+            n++;
+          }
+        }
+        if (n > 20 && sad < best) { best = sad; bx = dx; by = dy; }
+      }
+    }
+    return [bx, by];
+  }
+
+  function followFrame(now) {
+    requestAnimationFrame(followFrame);
+    const frozen = !!document.querySelector(".frozen");
+    if (frozen && !follow.frozen) cc.sound("shutter");
+    follow.frozen = frozen;
+    const v = video();
+    const svg = document.querySelector(".masks svg");
+    if (!v || !v.videoWidth || !svg || frozen || now - follow.last < 40) return;
+    follow.last = now;
+    const fresh = svg !== follow.svg;
+    if (fresh) {
+      follow.svg = svg;
+      follow.reference = follow.pending;
+      follow.dx = follow.dy = 0;
+    }
+    if (!follow.reference || !svg.viewBox.baseVal.width) return;
+    const area = svg.getBBox();
+    const sx = W / svg.viewBox.baseVal.width, sy = H / svg.viewBox.baseVal.height;
+    const box = { x0: Math.max(0, Math.floor(area.x * sx)), y0: Math.max(0, Math.floor(area.y * sy)),
+                  x1: Math.min(W, Math.ceil((area.x + area.width) * sx)), y1: Math.min(H, Math.ceil((area.y + area.height) * sy)) };
+    if (box.x1 - box.x0 < 8 || box.y1 - box.y0 < 8) return;
+    const current = greyFrame(v);
+    if (fresh) {
+      [follow.dx, follow.dy] = search(follow.reference, current, box, 0, 0, WIDE, 4);
+    }
+    [follow.dx, follow.dy] = search(follow.reference, current, box, follow.dx, follow.dy, NEAR, 1);
+    svg.style.transform = `translate(${(follow.dx / W * 100).toFixed(2)}%, ${(follow.dy / H * 100).toFixed(2)}%)`;
+  }
+  requestAnimationFrame(followFrame);
 
   // Small physical sounds instead of a voice.
   let audio = null;

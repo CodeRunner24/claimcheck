@@ -154,6 +154,8 @@ def analyze_shot(session: Session, raw_image: bytes) -> dict:
     with ThreadPoolExecutor(max_workers=4) as pool:
         outcomes = list(pool.map(lambda kv: _inspect_concept(session, kv[0], kv[1], jpeg), groups.items()))
 
+    if session.product_concept and session.product_concept not in groups:  # nothing to verify on it, but it may make the photo
+        _consider_hero(session, jpeg, vision.parse_sam(api.sam_raw(session.product_concept, jpeg, session.trace)), session.product_concept)
     layers = []
     for concept, instances, results in outcomes:
         _apply(session, concept, groups[concept], instances, results, jpeg)

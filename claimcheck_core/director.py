@@ -1,12 +1,13 @@
 """The live loop: find the evidence, coach the seller in one line, fire the shutter when the frame is good."""
 from __future__ import annotations
 
+import os
 import time
 
 from . import meta_api as api
 from . import rules, vision
 from .listening import discover
-from .perception import MIN_READ_SIDE, MIN_SHARPNESS, _apply, _consider_hero, _inspect_concept
+from .perception import MIN_SHARPNESS, _apply, _inspect_concept
 from .session import Claim, Session
 
 MIN_FILL_LIVE = 0.16   # evidence for reading should span this share of the frame's short side
@@ -14,6 +15,7 @@ STEADY_TICKS = 2       # consecutive good frames before the shutter fires
 LOOK_AGAIN_SECONDS = 9.0
 MAX_LOOKS = 4          # shutter fires on one claim before it is left open
 MAX_TICKS = 400        # hard stop so a forgotten tab can't keep spending
+SESSION_CAP_USD = float(os.getenv("CLAIMCHECK_SESSION_CAP_USD", "2"))  # one listing can't run away with the budget
 PLAN_PATIENCE = 8.0    # s: how long to wait for evidence the agent wanted but the seller never promised
 DISCOVER_EVERY = 3.0   # s
 WRAP_UP_AFTER = 12.0   # s of quiet with nothing open
@@ -73,7 +75,7 @@ def live_step(session: Session, raw_image: bytes) -> dict:
     now = time.time()
     session.ticks += 1
     out: dict = {"fired": False, "done": False, "overlay": None, "direction": "", "wait": 0.0, "steady": 0,
-                 "settled": [], "flat": "", "idle": False, "heard": [], "stopped": session.ticks > MAX_TICKS}
+                 "settled": [], "flat": "", "idle": False, "heard": [], "stopped": session.ticks > MAX_TICKS or session.cost() > SESSION_CAP_USD}
     if out["stopped"] or session.finish_requested:
         out["done"] = True
         return out
@@ -82,6 +84,8 @@ def live_step(session: Session, raw_image: bytes) -> dict:
         out["heard"].append(session.script.pop(0)[1])
 
     jpeg = vision.prepare_image(raw_image)
+    # Coaching runs on a small copy so SAM answers faster. The shutter re-segments the full frame before anything is read.
+    tick = vision.shrink(jpeg)
     if session.spoken and not session.product and now - session.last_discover > DISCOVER_EVERY:
         discover(session, jpeg)
 
@@ -98,10 +102,8 @@ def live_step(session: Session, raw_image: bytes) -> dict:
 
     if not pending:
         concept = session.product_concept
-        instances = vision.parse_sam(api.sam_raw(concept, jpeg, session.trace)) if concept else []
-        out["overlay"] = _overlay(jpeg, instances, concept, "open") if concept else None
-        if concept:
-            _consider_hero(session, jpeg, instances, concept)
+        instances = vision.parse_sam(api.sam_raw(concept, tick, session.trace)) if concept else []
+        out["overlay"] = _overlay(tick, instances, concept, "open") if concept else None
         out["direction"] = _idle_line(session)
         quiet = now - max(session.last_heard, session.started, session.discovered_at)
         settled_something = any(c.verdict != "open" and c.source != "seen" for c in session.claims)
@@ -117,10 +119,9 @@ def live_step(session: Session, raw_image: bytes) -> dict:
     group = [c for c in pending if c.sam_concept == concept]
     if concept != session.target:
         session.target, session.target_since, session.steady, session.last_count = concept, now, 0, -1
-    instances = vision.parse_sam(api.sam_raw(concept, jpeg, session.trace))
-    size = vision.image_size(jpeg)
-    out["overlay"] = _overlay(jpeg, instances, concept, "open")
-    _consider_hero(session, jpeg, instances, concept)
+    instances = vision.parse_sam(api.sam_raw(concept, tick, session.trace))
+    size = vision.image_size(tick)
+    out["overlay"] = _overlay(tick, instances, concept, "open")
 
     if not instances:
         session.steady, session.misses = 0, session.misses + 1
@@ -131,11 +132,11 @@ def live_step(session: Session, raw_image: bytes) -> dict:
 
     best = max(instances, key=lambda i: (i.box[2] - i.box[0]) * (i.box[3] - i.box[1]))
     reads = any(c.check in ("composition", "text", "read") for c in group)
-    if reads and best.short_side < max(MIN_READ_SIDE, MIN_FILL_LIVE * min(size)):
+    if reads and best.short_side < MIN_FILL_LIVE * min(size):
         session.steady = 0
         out["direction"] = session.line("closer")
         return out
-    if reads and vision.sharpness(jpeg, best.box) < MIN_SHARPNESS:
+    if reads and vision.sharpness(tick, best.box) < MIN_SHARPNESS:
         session.steady = 0
         out["direction"] = session.line("still")
         return out
@@ -165,7 +166,7 @@ def live_step(session: Session, raw_image: bytes) -> dict:
     out["fired"] = True
     at = now - session.started if session.started else -1.0
     session.shutter = {"frame": vision.to_data_url(jpeg), "overlay": out["overlay"], "line": session.line("reading")}
-    _, instances, results = _inspect_concept(session, concept, group, jpeg, instances)
+    _, instances, results = _inspect_concept(session, concept, group, jpeg)
     settled = _apply(session, concept, group, instances, results, jpeg, at)
     out["settled"] = settled
     out["flat"] = next((c.flat for c in group if c.flat), "")

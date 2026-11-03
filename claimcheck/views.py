@@ -9,6 +9,7 @@ from .state import State
 def start_view() -> rx.Component:
     return rx.el.main(
         rx.el.h1("Film it. Say it. Sell what's true."),
+        rx.el.div(rx.el.s("100% cotton"), rx.el.b("60% cotton"), class_name="promise", aria_hidden="true"),
         rx.cond(
             State.pasting,
             rx.el.div(
@@ -99,6 +100,7 @@ def cutting_view() -> rx.Component:
         rx.el.h2("Writing your listing"),
         rx.el.div(rx.el.i(style={"width": f"{State.progress}%"}), class_name="bar-track"),
         rx.el.p(State.ticker),
+        rx.el.ul(rx.foreach(State.caught, lambda c: rx.el.li(rx.el.s(c["text"]), " ", rx.el.b(c["value"])))),
         class_name="cutting",
     )
 
@@ -142,9 +144,13 @@ def reveal_view() -> rx.Component:
                             rx.el.img(src=rx.get_upload_url(State.hero), class_name="photo", id="cc-hero", alt="Product photo"),
                             rx.el.p(State.hero_note, class_name="photo-note"),
                         ),
-                        rx.cond(
-                            State.reel != "",
-                            rx.el.video(src=rx.get_upload_url(State.reel), controls=True, muted=True, auto_play=True, loop=True, plays_inline=True, class_name="reel"),
+                    ),
+                    rx.cond(
+                        State.reel != "",
+                        rx.el.div(
+                            rx.el.h2("The take, every piece of evidence tracked"),
+                            rx.el.video(src=rx.get_upload_url(State.reel), controls=True, muted=True, auto_play=True, loop=True, plays_inline=True, class_name="reel", id="cc-reel"),
+                            class_name="reel-wrap",
                         ),
                     ),
                 ),
@@ -159,6 +165,18 @@ def reveal_view() -> rx.Component:
                     ),
                     rx.el.h1(State.title, id="cc-title"),
                     rx.el.textarea(value=State.corrected, on_change=State.set_corrected, class_name="desc", id="cc-corrected", aria_label="Listing description"),
+                    rx.cond(
+                        State.noticed.length() > 0,
+                        rx.el.div(
+                            rx.el.h2("The camera also noticed"),
+                            rx.foreach(State.noticed, lambda c: rx.el.div(
+                                rx.el.span(c["value"]), proof_button(c),
+                                rx.el.button("Not damage", on_click=State.dismiss_noticed(c["id"]), class_name="quiet"),
+                                class_name="noticed-row",
+                            )),
+                            class_name="noticed", id="cc-noticed",
+                        ),
+                    ),
                     rx.el.div(rx.foreach(State.established, fact_row), class_name="facts"),
                     rx.cond(State.unproven != "", rx.el.p("Left out, because the camera couldn't check it: ", State.unproven, class_name="left-out")),
                     rx.el.div(
@@ -169,14 +187,6 @@ def reveal_view() -> rx.Component:
                     rx.el.p("Nothing is published. A match is what the camera saw, not a certification, and printed labels can be wrong too.", class_name="small"),
                 ),
                 class_name="product",
-            ),
-            rx.cond(
-                State.has_hero & (State.reel != ""),
-                rx.el.div(
-                    rx.el.h2("The take, with every piece of evidence tracked"),
-                    rx.el.video(src=rx.get_upload_url(State.reel), controls=True, muted=True, auto_play=True, loop=True, plays_inline=True, class_name="reel", id="cc-reel"),
-                    class_name="reel-wrap",
-                ),
             ),
             rx.el.details(
                 rx.el.summary("How it knows: ", State.calls.length(), " live Meta model calls, ", State.cost),

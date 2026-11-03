@@ -78,6 +78,7 @@ def discover(session: Session, jpeg: bytes) -> None:
     if not product:
         return
     session.product = product
+    session.first_look = jpeg
     session.discovered_at = time.time()
     if not session.product_concept:
         session.product_concept = str(data.get("sam_concept") or product).strip().lower()

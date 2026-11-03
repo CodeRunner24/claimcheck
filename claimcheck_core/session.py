@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import threading
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -19,7 +20,7 @@ class Claim:
     sam_concept: str
     shot_request: str
     evidence_name: str = ""
-    source: str = "said"           # said (spoken or typed) | seen (camera noticed) | plan (agent wants to know)
+    source: str = "said"           # said (spoken or typed) | seen (obvious on first look) | plan (agent wants to know) | noticed (damage)
     verdict: str = "open"          # open | verified | contradicted | not_visible
     observed: str = ""
     reason: str = ""
@@ -47,9 +48,11 @@ class Session:
     corrected: str = ""
     leak_warning: str = ""
     out_dir: Path | None = None    # evidence files go here; without it they stay as data URLs
+    created: float = field(default_factory=time.time)
     # What the agent knows about the thing in front of it
     product: str = ""
     product_concept: str = ""
+    first_look: bytes = b""
     discovered_at: float = 0.0
     last_discover: float = 0.0
     last_heard: float = 0.0

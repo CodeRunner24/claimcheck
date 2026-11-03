@@ -1,0 +1,693 @@
+{
+ "note": "Real photos from Wikimedia Commons, labelled by eye. Downloaded when the evaluation runs; not stored in this repository.",
+ "photos": {
+  "p003": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Dress%2C_match_%28AM_2017.66.33-13%29.jpg/1280px-Dress%2C_match_%28AM_2017.66.33-13%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Dress,_match_(AM_2017.66.33-13).jpg",
+   "license": "CC BY 4.0",
+   "artist": ""
+  },
+  "p004": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Dress%2C_match_%28AM_2017.66.33-14%29.jpg/1280px-Dress%2C_match_%28AM_2017.66.33-14%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Dress,_match_(AM_2017.66.33-14).jpg",
+   "license": "CC BY 4.0",
+   "artist": ""
+  },
+  "p027": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Laundry_symbols_on_a_care_label_attached_to_a_shirt.JPG/1280px-Laundry_symbols_on_a_care_label_attached_to_a_shirt.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Laundry_symbols_on_a_care_label_attached_to_a_shirt.JPG",
+   "license": "CC BY-SA 3.0",
+   "artist": "Mk2010"
+  },
+  "p041": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Cryptic_clothing_label.jpg/1280px-Cryptic_clothing_label.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Cryptic_clothing_label.jpg",
+   "license": "CC BY-SA 2.0",
+   "artist": "邰秉宥 from Changhua, Taiwan"
+  },
+  "p045": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/HK_clothing_brand_label_ZARA_August_2021_SS2.jpg/1280px-HK_clothing_brand_label_ZARA_August_2021_SS2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:HK_clothing_brand_label_ZARA_August_2021_SS2.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Faiywng Hoaidms"
+  },
+  "p046": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/HK_clothing_brand_label_ZARA_August_2021_SS2_02.jpg/1280px-HK_clothing_brand_label_ZARA_August_2021_SS2_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:HK_clothing_brand_label_ZARA_August_2021_SS2_02.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Faiywng Hoaidms"
+  },
+  "p047": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/HK_clothing_brand_label_white_jeans_August_2021_SS2.jpg/1280px-HK_clothing_brand_label_white_jeans_August_2021_SS2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:HK_clothing_brand_label_white_jeans_August_2021_SS2.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Faiywng Hoaidms"
+  },
+  "p049": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Pure_new_wool_label_on_secondhand_coat.jpg/1280px-Pure_new_wool_label_on_secondhand_coat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Pure_new_wool_label_on_secondhand_coat.jpg",
+   "license": "CC0",
+   "artist": "MAKY.OREL"
+  },
+  "p053": {
+   "url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Domestic_coffee_table_in_a_residential_setting.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "page": "https://commons.wikimedia.org/wiki/File:Domestic_coffee_table_in_a_residential_setting.jpg",
+   "license": "CC BY-SA 3.0",
+   "artist": "Trevor"
+  },
+  "p075": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Brown_leather_boots_on_a_wood_floor_%28Unsplash%29.jpg/1280px-Brown_leather_boots_on_a_wood_floor_%28Unsplash%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Brown_leather_boots_on_a_wood_floor_(Unsplash).jpg",
+   "license": "CC0",
+   "artist": "Radek Skrzypczak radziu"
+  },
+  "p081": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Kinderschoenen.jpg/1280px-Kinderschoenen.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Kinderschoenen.jpg",
+   "license": "Public domain",
+   "artist": "DimiTalen (<a href=\"//commons.wikimedia"
+  },
+  "p085": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Two_shoes_through_the_keyhole_%2814116101495%29.jpg/1280px-Two_shoes_through_the_keyhole_%2814116101495%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Two_shoes_through_the_keyhole_(14116101495).jpg",
+   "license": "CC BY 2.0",
+   "artist": "Cristian Ştefănescu from B"
+  },
+  "p139": {
+   "url": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Collage_stylish_blue_color_bag.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "page": "https://commons.wikimedia.org/wiki/File:Collage_stylish_blue_color_bag.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:KarthigadeviRavichandran&amp;action=edit&amp;redlink=1\" class=\"n"
+  },
+  "p142": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Jansport_Backpack_2_2019-03-07.jpg/1280px-Jansport_Backpack_2_2019-03-07.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Jansport_Backpack_2_2019-03-07.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "<span style=\"font-family:'Trebuchet M"
+  },
+  "p143": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Jansport_Backpack_3_2019-03-07.jpg/1280px-Jansport_Backpack_3_2019-03-07.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Jansport_Backpack_3_2019-03-07.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "<span style=\"font-family:'Trebuchet M"
+  },
+  "p146": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Red_and_blue_champion_backpack.jpg/1280px-Red_and_blue_champion_backpack.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Red_and_blue_champion_backpack.jpg",
+   "license": "CC0",
+   "artist": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:I_AM_GOING_TO_DRINK_OCEAN_WATER&amp;action=edit&amp;redlink=1\" c"
+  },
+  "p152": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/Atom_Editor_coffee_mug%2C_2025-05-04.jpeg/1280px-Atom_Editor_coffee_mug%2C_2025-05-04.jpeg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Atom_Editor_coffee_mug,_2025-05-04.jpeg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Nylki"
+  },
+  "p154": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Green_Mug_%2847346044602%29.jpg/1280px-Green_Mug_%2847346044602%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Green_Mug_(47346044602).jpg",
+   "license": "CC BY 2.0",
+   "artist": "Nick Amoscato"
+  },
+  "p158": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Mug_%28AM_2014.19.40-1%29.jpg/1280px-Mug_%28AM_2014.19.40-1%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Mug_(AM_2014.19.40-1).jpg",
+   "license": "CC BY 4.0",
+   "artist": "Crown Lynn Potteries Ltd"
+  },
+  "p159": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Mug_%28AM_783187-1%29.jpg/1280px-Mug_%28AM_783187-1%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Mug_(AM_783187-1).jpg",
+   "license": "CC BY 4.0",
+   "artist": "not researched"
+  },
+  "p171": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Raincoat.jpg/1280px-Raincoat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Raincoat.jpg",
+   "license": "Public domain",
+   "artist": "B. Kroll"
+  },
+  "p173": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b2/Veste_ROSBRAS_cir%C3%A9_jaune_traditionnel_breton_par_Guy_Cotten.jpg/1280px-Veste_ROSBRAS_cir%C3%A9_jaune_traditionnel_breton_par_Guy_Cotten.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Veste_ROSBRAS_cir%C3%A9_jaune_traditionnel_breton_par_Guy_Cotten.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "Arthur Crbz"
+  },
+  "p176": {
+   "url": "https://upload.wikimedia.org/wikipedia/commons/8/8a/2005_Christian_Dior_shoes%2C_cream_and_black_snakeskin_heels.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "page": "https://commons.wikimedia.org/wiki/File:2005_Christian_Dior_shoes,_cream_and_black_snakeskin_heels.jpg",
+   "license": "CC0",
+   "artist": "Staff photographer, Rhode Island School of Design Museum of Art"
+  },
+  "p177": {
+   "url": "https://upload.wikimedia.org/wikipedia/commons/1/1e/2005_Christian_Dior_shoes%2C_red_and_black_snakeskin_heels.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "page": "https://commons.wikimedia.org/wiki/File:2005_Christian_Dior_shoes,_red_and_black_snakeskin_heels.jpg",
+   "license": "CC0",
+   "artist": "Staff photographer, Rhode Island School of Design Museum of Art"
+  },
+  "p181": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/Black_shoes.jpg/1280px-Black_shoes.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Black_shoes.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Gausanchennai&amp;action=edit&amp;redlink=1\" class=\"new\" title=\""
+  },
+  "p182": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Black_shoes_1.jpg/1280px-Black_shoes_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:Black_shoes_1.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Gausanchennai&amp;action=edit&amp;redlink=1\" class=\"new\" title=\""
+  },
+  "p184": {
+   "url": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Gershwin_Black_Elevator_Shoes.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+   "page": "https://commons.wikimedia.org/wiki/File:Gershwin_Black_Elevator_Shoes.jpg",
+   "license": "CC BY-SA 4.0",
+   "artist": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Jademaestro&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"Us"
+  },
+  "p185": {
+   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/HK_black_plastic_shoes_July_2024_R12S_01.jpg/1280px-HK_black_plastic_shoes_July_2024_R12S_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "page": "https://commons.wikimedia.org/wiki/File:HK_black_plastic_shoes_July_2024_R12S_01.jpg",
+   "license": "CC0",
+   "artist": "R"
+  }
+ },
+ "cases": [
+  {
+   "image": "p041",
+   "check": "composition",
+   "claimed": "100% cotton",
+   "concept": "care label",
+   "expected": "verified"
+  },
+  {
+   "image": "p041",
+   "check": "composition",
+   "claimed": "60% cotton 40% polyester",
+   "concept": "care label",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p045",
+   "check": "composition",
+   "claimed": "100% silk",
+   "concept": "fabric label",
+   "expected": "verified"
+  },
+  {
+   "image": "p045",
+   "check": "composition",
+   "claimed": "100% cotton",
+   "concept": "fabric label",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p045",
+   "check": "text",
+   "claimed": "Made in China",
+   "concept": "brand label",
+   "expected": "verified"
+  },
+  {
+   "image": "p045",
+   "check": "text",
+   "claimed": "Made in Germany",
+   "concept": "brand label",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p046",
+   "check": "composition",
+   "claimed": "100% silk",
+   "concept": "fabric label",
+   "expected": "verified"
+  },
+  {
+   "image": "p046",
+   "check": "composition",
+   "claimed": "100% cotton",
+   "concept": "fabric label",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p046",
+   "check": "text",
+   "claimed": "Made in China",
+   "concept": "brand label",
+   "expected": "verified"
+  },
+  {
+   "image": "p046",
+   "check": "text",
+   "claimed": "Made in Germany",
+   "concept": "brand label",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p049",
+   "check": "text",
+   "claimed": "Made in Great Britain",
+   "concept": "clothing label",
+   "expected": "verified"
+  },
+  {
+   "image": "p049",
+   "check": "text",
+   "claimed": "Made in Italy",
+   "concept": "clothing label",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p047",
+   "check": "text",
+   "claimed": "Made in Bangladesh",
+   "concept": "size label",
+   "expected": "verified"
+  },
+  {
+   "image": "p047",
+   "check": "text",
+   "claimed": "Made in Portugal",
+   "concept": "size label",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p003",
+   "check": "composition",
+   "claimed": "90% nylon 10% elastane",
+   "concept": "care label",
+   "expected": "verified"
+  },
+  {
+   "image": "p003",
+   "check": "composition",
+   "claimed": "100% cotton",
+   "concept": "care label",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p003",
+   "check": "text",
+   "claimed": "Made in New Zealand",
+   "concept": "care label",
+   "expected": "verified"
+  },
+  {
+   "image": "p003",
+   "check": "text",
+   "claimed": "Made in Italy",
+   "concept": "care label",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p027",
+   "check": "composition",
+   "claimed": "100% cotton",
+   "concept": "care label",
+   "expected": "not_visible"
+  },
+  {
+   "image": "p004",
+   "check": "composition",
+   "claimed": "100% cotton",
+   "concept": "care label",
+   "expected": "not_visible"
+  },
+  {
+   "image": "p075",
+   "check": "count",
+   "claimed": "2",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p075",
+   "check": "count",
+   "claimed": "3",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p081",
+   "check": "count",
+   "claimed": "2",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p081",
+   "check": "count",
+   "claimed": "3",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p085",
+   "check": "count",
+   "claimed": "2",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p085",
+   "check": "count",
+   "claimed": "3",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p176",
+   "check": "count",
+   "claimed": "2",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p176",
+   "check": "count",
+   "claimed": "3",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p177",
+   "check": "count",
+   "claimed": "2",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p177",
+   "check": "count",
+   "claimed": "3",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p181",
+   "check": "count",
+   "claimed": "2",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p181",
+   "check": "count",
+   "claimed": "3",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p182",
+   "check": "count",
+   "claimed": "2",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p182",
+   "check": "count",
+   "claimed": "3",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p185",
+   "check": "count",
+   "claimed": "2",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p185",
+   "check": "count",
+   "claimed": "3",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p184",
+   "check": "count",
+   "claimed": "2",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p184",
+   "check": "count",
+   "claimed": "3",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p053",
+   "check": "count",
+   "claimed": "2",
+   "concept": "mug",
+   "expected": "verified"
+  },
+  {
+   "image": "p053",
+   "check": "count",
+   "claimed": "3",
+   "concept": "mug",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p142",
+   "check": "count",
+   "claimed": "1",
+   "concept": "backpack",
+   "expected": "verified"
+  },
+  {
+   "image": "p142",
+   "check": "count",
+   "claimed": "2",
+   "concept": "backpack",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p143",
+   "check": "count",
+   "claimed": "1",
+   "concept": "backpack",
+   "expected": "verified"
+  },
+  {
+   "image": "p143",
+   "check": "count",
+   "claimed": "2",
+   "concept": "backpack",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p139",
+   "check": "count",
+   "claimed": "1",
+   "concept": "backpack",
+   "expected": "verified"
+  },
+  {
+   "image": "p139",
+   "check": "count",
+   "claimed": "2",
+   "concept": "backpack",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p146",
+   "check": "count",
+   "claimed": "1",
+   "concept": "backpack",
+   "expected": "verified"
+  },
+  {
+   "image": "p146",
+   "check": "count",
+   "claimed": "2",
+   "concept": "backpack",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p152",
+   "check": "count",
+   "claimed": "1",
+   "concept": "mug",
+   "expected": "verified"
+  },
+  {
+   "image": "p152",
+   "check": "count",
+   "claimed": "2",
+   "concept": "mug",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p154",
+   "check": "count",
+   "claimed": "1",
+   "concept": "mug",
+   "expected": "verified"
+  },
+  {
+   "image": "p154",
+   "check": "count",
+   "claimed": "2",
+   "concept": "mug",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p158",
+   "check": "count",
+   "claimed": "1",
+   "concept": "mug",
+   "expected": "verified"
+  },
+  {
+   "image": "p158",
+   "check": "count",
+   "claimed": "2",
+   "concept": "mug",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p159",
+   "check": "count",
+   "claimed": "1",
+   "concept": "mug",
+   "expected": "verified"
+  },
+  {
+   "image": "p159",
+   "check": "count",
+   "claimed": "2",
+   "concept": "mug",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p143",
+   "check": "color",
+   "claimed": "blue",
+   "concept": "backpack",
+   "expected": "verified"
+  },
+  {
+   "image": "p143",
+   "check": "color",
+   "claimed": "red",
+   "concept": "backpack",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p152",
+   "check": "color",
+   "claimed": "green",
+   "concept": "mug",
+   "expected": "verified"
+  },
+  {
+   "image": "p152",
+   "check": "color",
+   "claimed": "blue",
+   "concept": "mug",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p154",
+   "check": "color",
+   "claimed": "green",
+   "concept": "mug",
+   "expected": "verified"
+  },
+  {
+   "image": "p154",
+   "check": "color",
+   "claimed": "red",
+   "concept": "mug",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p171",
+   "check": "color",
+   "claimed": "yellow",
+   "concept": "raincoat",
+   "expected": "verified"
+  },
+  {
+   "image": "p171",
+   "check": "color",
+   "claimed": "green",
+   "concept": "raincoat",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p173",
+   "check": "color",
+   "claimed": "yellow",
+   "concept": "raincoat",
+   "expected": "verified"
+  },
+  {
+   "image": "p173",
+   "check": "color",
+   "claimed": "red",
+   "concept": "raincoat",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p075",
+   "check": "color",
+   "claimed": "brown",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p075",
+   "check": "color",
+   "claimed": "white",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p181",
+   "check": "color",
+   "claimed": "black",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p181",
+   "check": "color",
+   "claimed": "white",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p184",
+   "check": "color",
+   "claimed": "black",
+   "concept": "shoe",
+   "expected": "verified"
+  },
+  {
+   "image": "p184",
+   "check": "color",
+   "claimed": "red",
+   "concept": "shoe",
+   "expected": "contradicted"
+  },
+  {
+   "image": "p158",
+   "check": "color",
+   "claimed": "white",
+   "concept": "mug",
+   "expected": "verified"
+  },
+  {
+   "image": "p158",
+   "check": "color",
+   "claimed": "black",
+   "concept": "mug",
+   "expected": "contradicted"
+  }
+ ]
+}
