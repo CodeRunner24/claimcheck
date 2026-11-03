@@ -6,7 +6,7 @@ Point a camera at what you're selling and talk about it. An AI director tells yo
 
 Built for the Meta Global AI Developer Hackathon. Track: Indie Developer. Theme: Build for Your World.
 
-**Demo video:** [`demo/claimcheck_demo.mp4`](demo/claimcheck_demo.mp4) · **What a seller leaves with:** [`demo/sample_proof.html`](demo/sample_proof.html)
+**Demo video:** [`demo/claimcheck_demo.mp4`](demo/claimcheck_demo.mp4) · **What a seller leaves with:** [`demo/sample_proof.html`](demo/sample_proof.html) (made from the AI-generated sample clip)
 
 ## The problem
 

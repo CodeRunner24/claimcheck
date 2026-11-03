@@ -18,9 +18,8 @@ from claimcheck_core.take import FFMPEG
 OUT = ROOT / "demo"
 TMP = OUT / "tmp"
 TMP.mkdir(parents=True, exist_ok=True)
-ev = json.loads((ROOT / "eval" / "results_holdout.json").read_text(encoding="utf-8"))["summary"]
 st = json.loads((ROOT / "eval" / "results_stress.json").read_text(encoding="utf-8"))["summary"]
-right = round(ev["accuracy"] * ev["claims"])
+real = json.loads((ROOT / "eval" / "results_real.json").read_text(encoding="utf-8"))["summary"]
 FONT = "https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap"
 
 
@@ -35,9 +34,10 @@ INTRO = card("Listings are written from memory.", "Buyers find out what's true w
 HOW = card("Models observe. Rules decide.",
            "SAM 3.1 finds and tracks the evidence. Muse Spark reads it. Muse Voice hears the seller. Muse Image draws only the background. "
            "Plain Python decides counts, percentages and colors. If the evidence can't be seen, the answer is &ldquo;not settled&rdquo;, never &ldquo;wrong&rdquo;.")
-SCORE = card(f"{right} of {ev['claims']} right. {ev['false_contradictions']} false alarms.",
-             f"Held-out test on AI-generated images. {st['claims']} damaged photos: {st['wrong']} wrong, all left open. "
-             "This clip and its seller are AI-generated and scripted, and real phone photos are not measured yet. Built during the hackathon.")
+SCORE = card(f"{real['correct']} of {real['claims']} right. {real['wrong']} wrong.",
+             f"{real['photos']} real photos by other people, labelled by hand: {real['left_open']} claims left open. "
+             f"{st['claims']} damaged photos: {st['wrong']} wrong, all left open. "
+             "This clip and its seller are AI-generated and scripted. A real seller filming live is not measured yet. Built during the hackathon.")
 
 
 def main():
