@@ -15,8 +15,8 @@
    "color": "10/10",
    "visual": "3/3"
   },
-  "median_seconds_per_claim": 5.6,
-  "usd_total": 0.4075
+  "median_seconds_per_claim": 5.2,
+  "usd_total": 0.3688
  },
  "results": [
   {
@@ -30,8 +30,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 60% cotton, 40% polyester; label says 60% cotton, 40% polyester.",
    "observed": "60% COTTON / 40% POLYESTER",
-   "seconds": 5.1,
-   "usd": 0.006456
+   "seconds": 4.7,
+   "usd": 0.006978750000000001
   },
   {
    "image": "label00",
@@ -44,8 +44,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 100% cotton; label says 60% cotton, 40% polyester.",
    "observed": "60% COTTON / 40% POLYESTER",
-   "seconds": 5.8,
-   "usd": 0.007053750000000001
+   "seconds": 6.0,
+   "usd": 0.0067233
   },
   {
    "image": "label00",
@@ -58,8 +58,8 @@
    "rule": "text_match",
    "detail": "Claimed \"bangladesh\"; read \"made in bangladesh\".",
    "observed": "MADE IN BANGLADESH",
-   "seconds": 6.7,
-   "usd": 0.0073215
+   "seconds": 6.1,
+   "usd": 0.00513515
   },
   {
    "image": "label00",
@@ -70,10 +70,10 @@
    "expected": "contradicted",
    "got": "contradicted",
    "rule": "model_judgement",
-   "detail": "Care label clearly reads MADE IN BANGLADESH in both images.",
+   "detail": "Close-up crop clearly reads MADE IN BANGLADESH.",
    "observed": "MADE IN BANGLADESH",
-   "seconds": 6.0,
-   "usd": 0.0075527500000000004
+   "seconds": 5.8,
+   "usd": 0.006817500000000001
   },
   {
    "image": "label02",
@@ -86,8 +86,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 95% cotton, 5% elastane; label says 95% cotton, 5% elastane.",
    "observed": "95% COTTON 5% ELASTANE",
-   "seconds": 6.4,
-   "usd": 0.00794575
+   "seconds": 4.6,
+   "usd": 0.006828000000000001
   },
   {
    "image": "label02",
@@ -100,8 +100,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 100% cotton; label says 95% cotton, 5% elastane.",
    "observed": "95% COTTON 5% ELASTANE",
-   "seconds": 5.7,
-   "usd": 0.00779725
+   "seconds": 5.2,
+   "usd": 0.0067443
   },
   {
    "image": "label02",
@@ -114,8 +114,8 @@
    "rule": "text_match",
    "detail": "Claimed \"portugal\"; read \"made in portugal\".",
    "observed": "MADE IN PORTUGAL",
-   "seconds": 7.1,
-   "usd": 0.006613250000000001
+   "seconds": 5.0,
+   "usd": 0.007051
   },
   {
    "image": "label02",
@@ -126,10 +126,10 @@
    "expected": "contradicted",
    "got": "contradicted",
    "rule": "model_judgement",
-   "detail": "Care label clearly reads MADE IN PORTUGAL.",
+   "detail": "Care label text clearly reads MADE IN PORTUGAL.",
    "observed": "MADE IN PORTUGAL",
-   "seconds": 6.0,
-   "usd": 0.007052050000000001
+   "seconds": 5.8,
+   "usd": 0.007166800000000001
   },
   {
    "image": "label03",
@@ -142,8 +142,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 80% wool, 20% nylon; label says 80% wool, 20% nylon.",
    "observed": "80% WOOL 20% NYLON",
-   "seconds": 5.3,
-   "usd": 0.00824475
+   "seconds": 5.2,
+   "usd": 0.007360750000000001
   },
   {
    "image": "label03",
@@ -156,8 +156,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 100% cotton; label says 80% wool, 20% nylon.",
    "observed": "80% WOOL, 20% NYLON",
-   "seconds": 4.4,
-   "usd": 0.006901300000000001
+   "seconds": 5.3,
+   "usd": 0.0048296
   },
   {
    "image": "label03",
@@ -170,8 +170,8 @@
    "rule": "text_match",
    "detail": "Claimed \"italy\"; read \"made in italy\".",
    "observed": "MADE IN ITALY",
-   "seconds": 5.7,
-   "usd": 0.007994250000000001
+   "seconds": 5.8,
+   "usd": 0.0085935
   },
   {
    "image": "label03",
@@ -182,10 +182,10 @@
    "expected": "contradicted",
    "got": "contradicted",
    "rule": "model_judgement",
-   "detail": "Care label clearly reads MADE IN ITALY in both images.",
+   "detail": "Close-up care label clearly reads MADE IN ITALY.",
    "observed": "MADE IN ITALY",
-   "seconds": 5.6,
-   "usd": 0.00805375
+   "seconds": 6.5,
+   "usd": 0.0057754
   },
   {
    "image": "label05",
@@ -198,8 +198,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 100% linen; label says 100% linen.",
    "observed": "100% LINEN",
-   "seconds": 5.2,
-   "usd": 0.0069835
+   "seconds": 5.3,
+   "usd": 0.004724900000000001
   },
   {
    "image": "label05",
@@ -211,9 +211,9 @@
    "got": "contradicted",
    "rule": "composition_equal",
    "detail": "Claimed 100% cotton; label says 100% linen.",
-   "observed": "100% LINEN",
-   "seconds": 6.3,
-   "usd": 0.00746055
+   "observed": "100% linen",
+   "seconds": 4.0,
+   "usd": 0.0041384
   },
   {
    "image": "label05",
@@ -227,7 +227,7 @@
    "detail": "Claimed \"india\"; read \"made in india\".",
    "observed": "MADE IN INDIA",
    "seconds": 5.6,
-   "usd": 0.00724875
+   "usd": 0.007104250000000001
   },
   {
    "image": "label05",
@@ -238,10 +238,10 @@
    "expected": "contradicted",
    "got": "contradicted",
    "rule": "model_judgement",
-   "detail": "Care label clearly reads MADE IN INDIA.",
+   "detail": "Close-up label clearly reads MADE IN INDIA.",
    "observed": "MADE IN INDIA",
-   "seconds": 7.1,
-   "usd": 0.007118050000000001
+   "seconds": 6.4,
+   "usd": 0.0052451500000000005
   },
   {
    "image": "label06",
@@ -254,8 +254,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 70% viscose, 30% silk; label says 70% viscose, 30% silk.",
    "observed": "70% VISCOSE / 30% SILK",
-   "seconds": 5.6,
-   "usd": 0.007892
+   "seconds": 5.1,
+   "usd": 0.00531355
   },
   {
    "image": "label06",
@@ -268,8 +268,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 100% cotton; label says 70% viscose, 30% silk.",
    "observed": "70% VISCOSE / 30% SILK",
-   "seconds": 5.1,
-   "usd": 0.007470050000000001
+   "seconds": 5.3,
+   "usd": 0.0049033
   },
   {
    "image": "label06",
@@ -282,8 +282,8 @@
    "rule": "text_match",
    "detail": "Claimed \"china\"; read \"made in china\".",
    "observed": "MADE IN CHINA",
-   "seconds": 6.8,
-   "usd": 0.0077894999999999995
+   "seconds": 5.4,
+   "usd": 0.005007050000000001
   },
   {
    "image": "label06",
@@ -294,10 +294,10 @@
    "expected": "contradicted",
    "got": "contradicted",
    "rule": "model_judgement",
-   "detail": "Care label clearly reads MADE IN CHINA.",
+   "detail": "Care label text reads MADE IN CHINA in both images.",
    "observed": "MADE IN CHINA",
-   "seconds": 6.4,
-   "usd": 0.008466300000000001
+   "seconds": 6.1,
+   "usd": 0.00761205
   },
   {
    "image": "label08",
@@ -310,8 +310,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 100% cotton; label says 100% cotton.",
    "observed": "%100 PAMUK",
-   "seconds": 5.3,
-   "usd": 0.0066993
+   "seconds": 5.4,
+   "usd": 0.007043550000000001
   },
   {
    "image": "label08",
@@ -324,8 +324,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 80% acrylic, 20% wool; label says 100% cotton.",
    "observed": "%100 PAMUK",
-   "seconds": 4.9,
-   "usd": 0.006784750000000001
+   "seconds": 5.5,
+   "usd": 0.0051838000000000006
   },
   {
    "image": "label08",
@@ -338,8 +338,8 @@
    "rule": "text_match",
    "detail": "Claimed \"turkey\"; read \"%100 pamuk / turkey de uretilmistir\".",
    "observed": "%100 PAMUK / TÜRKİYE'DE ÜRETİLMİŞTİR",
-   "seconds": 6.2,
-   "usd": 0.007405500000000001
+   "seconds": 6.0,
+   "usd": 0.007936750000000001
   },
   {
    "image": "label08",
@@ -350,10 +350,10 @@
    "expected": "contradicted",
    "got": "contradicted",
    "rule": "model_judgement",
-   "detail": "Close-up crop shows label reads made in Türkiye, not Germany.",
+   "detail": "Care label text is fully legible and states production in Türkiye.",
    "observed": "%100 PAMUK / TÜRKİYE'DE ÜRETİLMİŞTİR",
-   "seconds": 7.1,
-   "usd": 0.00746925
+   "seconds": 5.2,
+   "usd": 0.0047888
   },
   {
    "image": "label09",
@@ -366,8 +366,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 65% polyester, 35% cotton; label says 65% polyester, 35% cotton.",
    "observed": "%65 POLYESTER %35 PAMUK",
-   "seconds": 5.1,
-   "usd": 0.0066175
+   "seconds": 4.6,
+   "usd": 0.00419315
   },
   {
    "image": "label09",
@@ -380,8 +380,8 @@
    "rule": "composition_equal",
    "detail": "Claimed 100% cotton; label says 65% polyester, 35% cotton.",
    "observed": "%65 POLYESTER %35 PAMUK",
-   "seconds": 5.1,
-   "usd": 0.006502300000000001
+   "seconds": 5.0,
+   "usd": 0.00468465
   },
   {
    "image": "label09",
@@ -392,10 +392,10 @@
    "expected": "verified",
    "got": "verified",
    "rule": "text_match",
-   "detail": "Claimed \"turkey\"; read \"turkey de uretilmistir\".",
-   "observed": "TÜRKİYE'DE ÜRETİLMİŞTİR",
-   "seconds": 5.9,
-   "usd": 0.00774825
+   "detail": "Claimed \"turkey\"; read \"%65 polyester %35 pamuk / turkey de uretilmistir\".",
+   "observed": "%65 POLYESTER %35 PAMUK / TÜRKİYE'DE ÜRETİLMİŞTİR",
+   "seconds": 7.7,
+   "usd": 0.00719815
   },
   {
    "image": "label09",
@@ -406,10 +406,10 @@
    "expected": "contradicted",
    "got": "contradicted",
    "rule": "model_judgement",
-   "detail": "Care label clearly reads made in Türkiye, not Germany.",
+   "detail": "Close-up label clearly reads made in Türkiye, not Germany.",
    "observed": "/ TÜRKİYE'DE ÜRETİLMİŞTİR",
-   "seconds": 6.6,
-   "usd": 0.007277550000000001
+   "seconds": 5.6,
+   "usd": 0.0051538999999999995
   },
   {
    "image": "count00",
@@ -422,8 +422,8 @@
    "rule": "count_equal",
    "detail": "Claimed 2, counted 2.",
    "observed": "2",
-   "seconds": 5.3,
-   "usd": 0.007331500000000001
+   "seconds": 4.9,
+   "usd": 0.0052307
   },
   {
    "image": "count00",
@@ -436,8 +436,8 @@
    "rule": "count_equal",
    "detail": "Claimed 3, counted 2.",
    "observed": "2",
-   "seconds": 6.5,
-   "usd": 0.007816
+   "seconds": 4.9,
+   "usd": 0.00718275
   },
   {
    "image": "count01",
@@ -451,7 +451,7 @@
    "detail": "Claimed 4, counted 4.",
    "observed": "4",
    "seconds": 4.1,
-   "usd": 0.0067645
+   "usd": 0.006828250000000001
   },
   {
    "image": "count01",
@@ -464,8 +464,8 @@
    "rule": "count_equal",
    "detail": "Claimed 5, counted 4.",
    "observed": "4",
-   "seconds": 5.1,
-   "usd": 0.007678250000000001
+   "seconds": 5.7,
+   "usd": 0.007083250000000001
   },
   {
    "image": "count03",
@@ -478,8 +478,8 @@
    "rule": "count_equal",
    "detail": "Claimed 5, counted 5.",
    "observed": "5",
-   "seconds": 4.9,
-   "usd": 0.00829375
+   "seconds": 4.4,
+   "usd": 0.00800475
   },
   {
    "image": "count03",
@@ -492,8 +492,8 @@
    "rule": "count_equal",
    "detail": "Claimed 6, counted 5.",
    "observed": "5",
-   "seconds": 4.9,
-   "usd": 0.008128
+   "seconds": 3.7,
+   "usd": 0.007567000000000001
   },
   {
    "image": "count04",
@@ -506,8 +506,8 @@
    "rule": "count_equal",
    "detail": "Claimed 3, counted 3.",
    "observed": "3",
-   "seconds": 4.6,
-   "usd": 0.007369500000000001
+   "seconds": 5.0,
+   "usd": 0.007412
   },
   {
    "image": "count04",
@@ -520,8 +520,8 @@
    "rule": "count_equal",
    "detail": "Claimed 4, counted 3.",
    "observed": "3",
-   "seconds": 6.6,
-   "usd": 0.007922
+   "seconds": 5.2,
+   "usd": 0.007548000000000001
   },
   {
    "image": "count06",
@@ -534,8 +534,8 @@
    "rule": "count_equal",
    "detail": "Claimed 2, counted 2.",
    "observed": "2",
-   "seconds": 5.3,
-   "usd": 0.0069625
+   "seconds": 5.0,
+   "usd": 0.006648000000000001
   },
   {
    "image": "count06",
@@ -548,8 +548,8 @@
    "rule": "count_equal",
    "detail": "Claimed 3, counted 2.",
    "observed": "2",
-   "seconds": 5.8,
-   "usd": 0.007651
+   "seconds": 6.4,
+   "usd": 0.007243000000000001
   },
   {
    "image": "count07",
@@ -562,8 +562,8 @@
    "rule": "count_disagreement",
    "detail": "SAM found 4, Spark counted 3; separate the items.",
    "observed": "3",
-   "seconds": 4.7,
-   "usd": 0.007081250000000001
+   "seconds": 4.3,
+   "usd": 0.006979250000000001
   },
   {
    "image": "count07",
@@ -576,8 +576,8 @@
    "rule": "count_disagreement",
    "detail": "SAM found 4, Spark counted 3; separate the items.",
    "observed": "3",
-   "seconds": 6.6,
-   "usd": 0.00703875
+   "seconds": 7.0,
+   "usd": 0.008012
   },
   {
    "image": "count09",
@@ -590,8 +590,8 @@
    "rule": "count_equal",
    "detail": "Claimed 2, counted 2.",
    "observed": "2",
-   "seconds": 6.1,
-   "usd": 0.0084875
+   "seconds": 5.6,
+   "usd": 0.00776925
   },
   {
    "image": "count09",
@@ -604,8 +604,8 @@
    "rule": "count_equal",
    "detail": "Claimed 3, counted 2.",
    "observed": "2",
-   "seconds": 6.5,
-   "usd": 0.00803275
+   "seconds": 6.4,
+   "usd": 0.00819425
   },
   {
    "image": "color01",
@@ -618,8 +618,8 @@
    "rule": "color_equal",
    "detail": "Claimed navy, observed navy.",
    "observed": "navy",
-   "seconds": 5.4,
-   "usd": 0.00708025
+   "seconds": 4.9,
+   "usd": 0.00670625
   },
   {
    "image": "color01",
@@ -632,8 +632,8 @@
    "rule": "color_equal",
    "detail": "Claimed red, observed blue.",
    "observed": "navy blue",
-   "seconds": 5.3,
-   "usd": 0.006712250000000001
+   "seconds": 5.0,
+   "usd": 0.006682500000000001
   },
   {
    "image": "color02",
@@ -646,8 +646,8 @@
    "rule": "color_equal",
    "detail": "Claimed green, observed green.",
    "observed": "green",
-   "seconds": 4.7,
-   "usd": 0.006469000000000001
+   "seconds": 4.6,
+   "usd": 0.00670275
   },
   {
    "image": "color02",
@@ -660,8 +660,8 @@
    "rule": "color_equal",
    "detail": "Claimed black, observed green.",
    "observed": "green",
-   "seconds": 4.7,
-   "usd": 0.006231
+   "seconds": 5.1,
+   "usd": 0.006545500000000001
   },
   {
    "image": "color04",
@@ -674,8 +674,8 @@
    "rule": "color_equal",
    "detail": "Claimed white, observed white.",
    "observed": "white",
-   "seconds": 4.5,
-   "usd": 0.005869000000000001
+   "seconds": 4.9,
+   "usd": 0.00690175
   },
   {
    "image": "color04",
@@ -688,8 +688,8 @@
    "rule": "color_equal",
    "detail": "Claimed black, observed white.",
    "observed": "white",
-   "seconds": 8.7,
-   "usd": 0.00653625
+   "seconds": 8.9,
+   "usd": 0.007314000000000001
   },
   {
    "image": "color05",
@@ -702,8 +702,8 @@
    "rule": "color_equal",
    "detail": "Claimed yellow, observed yellow.",
    "observed": "yellow",
-   "seconds": 5.4,
-   "usd": 0.006845
+   "seconds": 11.8,
+   "usd": 0.00629675
   },
   {
    "image": "color05",
@@ -716,8 +716,8 @@
    "rule": "color_equal",
    "detail": "Claimed green, observed yellow.",
    "observed": "yellow",
-   "seconds": 8.6,
-   "usd": 0.0063265000000000005
+   "seconds": 6.0,
+   "usd": 0.007044750000000001
   },
   {
    "image": "color07",
@@ -730,8 +730,8 @@
    "rule": "color_equal",
    "detail": "Claimed pink, observed pink.",
    "observed": "pink",
-   "seconds": 3.9,
-   "usd": 0.0069905
+   "seconds": 4.9,
+   "usd": 0.00694375
   },
   {
    "image": "color07",
@@ -744,8 +744,8 @@
    "rule": "color_equal",
    "detail": "Claimed grey, observed pink.",
    "observed": "pink",
-   "seconds": 7.1,
-   "usd": 0.00694375
+   "seconds": 5.1,
+   "usd": 0.00652725
   },
   {
    "image": "feat00",
@@ -756,10 +756,10 @@
    "expected": "verified",
    "got": "verified",
    "rule": "model_judgement",
-   "detail": "Central zipper runs the full length from hem to collar.",
-   "observed": "full front zipper",
-   "seconds": 7.2,
-   "usd": 0.007277250000000001
+   "detail": "Central zipper visible down entire front of hoodie",
+   "observed": "full front zipper running from neck to hem",
+   "seconds": 6.5,
+   "usd": 0.00775325
   },
   {
    "image": "feat02",
@@ -770,10 +770,10 @@
    "expected": "verified",
    "got": "verified",
    "rule": "model_judgement",
-   "detail": "Mesh pockets are clearly visible on left and right sides of backpack.",
-   "observed": "side mesh pockets on both sides",
-   "seconds": 6.3,
-   "usd": 0.007620750000000001
+   "detail": "Mesh-textured side pockets are visible on left and right sides.",
+   "observed": "mesh pockets on both sides of backpack",
+   "seconds": 4.5,
+   "usd": 0.00661775
   },
   {
    "image": "feat05",
@@ -784,10 +784,10 @@
    "expected": "contradicted",
    "got": "contradicted",
    "rule": "model_judgement",
-   "detail": "Both images clearly show short sleeves ending above the elbow.",
+   "detail": "Shirt in full frame shows short sleeves ending above elbow.",
    "observed": "short sleeves",
-   "seconds": 5.5,
-   "usd": 0.006611500000000001
+   "seconds": 4.6,
+   "usd": 0.007355250000000001
   },
   {
    "image": "hidden00",
@@ -800,7 +800,7 @@
    "rule": "sam_no_match",
    "detail": "SAM found no \"care label\" in this shot.",
    "observed": "",
-   "seconds": 1.0,
+   "seconds": 1.3,
    "usd": 0.0025
   },
   {
@@ -814,7 +814,7 @@
    "rule": "sam_no_match",
    "detail": "SAM found no \"care label\" in this shot.",
    "observed": "",
-   "seconds": 0.9,
+   "seconds": 1.4,
    "usd": 0.0025
   },
   {
@@ -828,7 +828,7 @@
    "rule": "sam_no_match",
    "detail": "SAM found no \"care label\" in this shot.",
    "observed": "",
-   "seconds": 1.3,
+   "seconds": 1.2,
    "usd": 0.0025
   }
  ]

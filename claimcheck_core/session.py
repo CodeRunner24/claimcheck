@@ -10,8 +10,13 @@ from . import meta_api as api
 from .prompts import LINES
 
 
+READ_CHECKS = ("composition", "text", "read")  # settled by reading print, so the evidence must be big and sharp
+
+
 @dataclass
 class Claim:
+    """One thing that can be checked on camera, and what became of it."""
+
     id: str
     text: str
     attribute: str
@@ -36,9 +41,15 @@ class Claim:
     skipped: bool = False
     human: str = ""                # "" | agree | disagree
 
+    @property
+    def reads_print(self) -> bool:
+        return self.check in READ_CHECKS
+
 
 @dataclass
 class Session:
+    """Everything known about one listing, from the first word to the buyer's last question."""
+
     listing: str = ""              # what the seller typed, or everything they have said so far
     spoken: bool = False           # the listing comes from the seller's voice as they film
     claims: list[Claim] = field(default_factory=list)
@@ -68,6 +79,8 @@ class Session:
     last_count: int = -1
     misses: int = 0
     started: float = 0.0
+    struggling_since: float = 0.0  # when the coaching started failing to get a readable shot
+    blurry_ticks: int = 0
     moments: list[dict] = field(default_factory=list)
     shutter: dict | None = None    # the frame being read right now, shown frozen
     # Finishing
@@ -78,6 +91,14 @@ class Session:
     video_counts: dict = field(default_factory=dict)
     progress: dict = field(default_factory=dict)
     file_seq: int = 0
+    # After the listing: the footage stays searchable for buyers' questions
+    take: object | None = None     # take.Take
+    search_clip: object | None = None
+    strip: str = ""
+    suggestions: list[str] = field(default_factory=list)
+    asking: dict = field(default_factory=dict)  # {"stage": what's happening, "cells": one per filmstrip cell}
+    answers: list[dict] = field(default_factory=list)
+    filming_cost: float = 0.0
 
     @property
     def open_claims(self) -> list[Claim]:
@@ -91,9 +112,11 @@ class Session:
         return found if found >= 0 else len(self.listing)
 
     def cost(self) -> float:
+        """Dollars spent on this listing's model calls so far."""
         return sum(t.usd for t in self.trace)
 
     def line(self, key: str, **kw) -> str:
+        """One line of the director's script, from prompts.LINES."""
         return LINES[key].format(**kw)
 
 

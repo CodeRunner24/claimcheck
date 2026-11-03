@@ -119,17 +119,125 @@ def best_read_frame(frames: dict[int, list[vision.Instance]], take: Take) -> tup
     candidates = []
     for index, instances in frames.items():
         if instances and index < len(take.frames):
-            inst = max(instances, key=lambda i: (i.box[2] - i.box[0]) * (i.box[3] - i.box[1]))
+            inst = vision.largest(instances)
             candidates.append((inst.short_side, index, inst))
     if not candidates:
         return None
     candidates.sort(key=lambda c: -c[0])
     best, score = None, -1.0
     for side, index, inst in candidates[:24]:
-        s = side * min(vision.sharpness(take.frames[index], inst.box), 400.0) ** 0.5
+        s = side * min(vision.sharpness(take.frames[index], inst.box), 400.0) ** 0.5 / (1 + (motion(take, index) / 4) ** 2)
         if s > score:
             best, score = (index, inst), s
     return best
+
+
+def _tiny_grey(jpeg: bytes) -> np.ndarray:
+    return cv2.resize(cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_GRAYSCALE), (64, 36), interpolation=cv2.INTER_AREA).astype(np.int16)
+
+
+def motion(take: Take, index: int) -> float:
+    """How much the picture is changing at this frame, 0-255. A pan or a cut between shots blends two pictures into one."""
+    frames = take.frames
+    here = _tiny_grey(frames[index])
+    neighbours = [frames[i] for i in (index - 1, index + 1) if 0 <= i < len(frames)]
+    return max((float(np.abs(here - _tiny_grey(n)).mean()) for n in neighbours), default=0.0)
+
+
+def steadiest_view(frames: dict[int, list[vision.Instance]], take: Take) -> tuple[int, list[vision.Instance]] | None:
+    """A large, settled view with the whole object in shot: bigger is better, but not at the price of a frame caught mid-move."""
+    w, h = take.size
+    whole = [(i, found) for i, found in frames.items() if found and i < len(take.frames)
+             and all(x.in_full_view(w, h) for x in found)]
+    if not whole:
+        return None
+    largest = sorted(whole, key=lambda kv: -sum(x.short_side for x in kv[1]))[:40]
+    return max(largest, key=lambda kv: sum(x.short_side for x in kv[1]) / (1 + (motion(take, kv[0]) / 4) ** 2))
+
+
+def _smoothed_centres(frames: dict[int, list[vision.Instance]], total: int) -> np.ndarray:
+    """Where the found object is on every frame, carried across gaps and smoothed so a virtual camera can follow it calmly."""
+    centres = np.full((total, 2), np.nan)
+    for index, found in frames.items():
+        if 0 <= index < total and found:
+            x0, y0 = min(i.box[0] for i in found), min(i.box[1] for i in found)
+            x1, y1 = max(i.box[2] for i in found), max(i.box[3] for i in found)
+            centres[index] = ((x0 + x1) / 2, (y0 + y1) / 2)
+    known = np.flatnonzero(~np.isnan(centres[:, 0]))
+    for axis in (0, 1):
+        centres[:, axis] = np.interp(np.arange(total), known, centres[known, axis])
+    kernel = np.ones(5) / 5
+    pad = np.pad(centres, ((2, 2), (0, 0)), mode="edge")
+    return np.stack([np.convolve(pad[:, axis], kernel, mode="valid") for axis in (0, 1)], axis=1)
+
+
+def render_answer(take: Take, frames: dict[int, list[vision.Instance]], focus: int, label: str, out: Path, tone: str = "verified") -> None:
+    """The moment that answers a question: the thing in full color, everything else drained, and a slow push in.
+
+    The footage is low frame rate, so the virtual camera moves at 24 fps over held frames. It only crops: every pixel is
+    from the seller's video, and no frame is invented.
+    """
+    w, h = take.size
+    total = len(take.frames)
+    rate = 24
+    color = (0, 221, 255) if tone != "wrong" else (28, 33, 227)
+    found = frames.get(focus) or next(iter(v for v in frames.values() if v), [])
+    box_w = max(1, max(i.box[2] for i in found) - min(i.box[0] for i in found)) if found else w
+    box_h = max(1, max(i.box[3] for i in found) - min(i.box[1] for i in found)) if found else h
+    peak = float(np.clip(0.55 * min(w / box_w, h / box_h), 1.1, 3.4))
+    centres = _smoothed_centres(frames, total) if found else np.full((total, 2), 0.0) + (w / 2, h / 2)
+    # The tag is drawn after the crop, so it stays sharp however far the camera has pushed in.
+    font = vision._font(max(18, w // 40))
+    probe = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+    l, t, r, b = probe.textbbox((0, 0), label, font=font)
+    tag = Image.new("RGB", (r - l + 24, b - t + 16), color[::-1])
+    ImageDraw.Draw(tag).text((12 - l, 8 - t), label, font=font, fill=(255, 255, 255) if tone == "wrong" else (17, 17, 17))
+    tag = cv2.cvtColor(np.array(tag), cv2.COLOR_RGB2BGR)
+    pipe = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{w}x{h}",
+                             "-r", str(rate), "-i", "-", "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-pix_fmt", "yuv420p",
+                             "-movflags", "+faststart", str(out)], stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    repeat = max(1, round(rate / take.fps))
+    ease_frames = int(1.3 * rate)
+    drawn = 0
+    try:
+        for index in range(total):
+            frame = cv2.imdecode(np.frombuffer(take.frames[index], np.uint8), cv2.IMREAD_COLOR)
+            present = frames.get(index, [])
+            outlines = []
+            if present:
+                mask = np.zeros((h, w), np.uint8)
+                for instance in present:
+                    mask = cv2.bitwise_or(mask, vision.full_mask(instance, (w, h)))
+                outlines, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                alpha = (cv2.GaussianBlur(mask, (0, 0), 2.0).astype(np.float32) / 255)[..., None]
+                drained = (cv2.cvtColor(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR) * 0.34).astype(np.float32)
+                frame = (frame * alpha + drained * (1 - alpha)).astype(np.uint8)
+            else:
+                frame = (cv2.cvtColor(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR) * 0.34).astype(np.uint8)
+            for _ in range(repeat + (rate if index == focus else 0)):  # a second's pause on the best frame, so it can be read
+                p = min(1.0, drawn / max(1, ease_frames))
+                p = p * p * (3 - 2 * p)
+                zoom = 1 + (peak - 1) * p
+                view_w, view_h = w / zoom, h / zoom
+                cx = (1 - p) * w / 2 + p * centres[index][0]
+                cy = (1 - p) * h / 2 + p * centres[index][1]
+                x0 = float(np.clip(cx - view_w / 2, 0, w - view_w))
+                y0 = float(np.clip(cy - view_h / 2, 0, h - view_h))
+                matrix = np.float32([[zoom, 0, -x0 * zoom], [0, zoom, -y0 * zoom]])
+                shot = cv2.warpAffine(frame, matrix, (w, h), flags=cv2.INTER_LINEAR)
+                for contour in outlines:
+                    points = (contour.astype(np.float32) * zoom - (x0 * zoom, y0 * zoom)).astype(np.int32)
+                    cv2.polylines(shot, [points], True, color, max(2, w // 300), cv2.LINE_AA)
+                if outlines:
+                    top = np.vstack(outlines).reshape(-1, 2)
+                    tx = int(np.clip(top[:, 0].min() * zoom - x0 * zoom, 8, w - tag.shape[1] - 8))
+                    ty = int(np.clip(top[:, 1].min() * zoom - y0 * zoom - tag.shape[0] - 8, 8, h - tag.shape[0] - 8))
+                    shot[ty:ty + tag.shape[0], tx:tx + tag.shape[1]] = tag
+                pipe.stdin.write(shot.tobytes())
+                drawn += 1
+    finally:
+        pipe.stdin.close()
+        pipe.wait()
 
 
 def _caption(width: int, text: str, bgr: tuple[int, int, int]) -> np.ndarray:

@@ -166,6 +166,48 @@
     setTimeout(() => socket.close(), 1500);
   };
 
+  // A question said out loud. It stops by itself after a pause, so nobody has to press anything twice.
+  let asking = null;
+  cc.askListen = (url) =>
+    new Promise(async (resolve) => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } });
+        const recorder = new MediaRecorder(stream);
+        const parts = [];
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const meter = ctx.createAnalyser();
+        ctx.createMediaStreamSource(stream).connect(meter);
+        const samples = new Float32Array(meter.fftSize);
+        let spoke = false, quietSince = performance.now();
+        const started = performance.now();
+        const watch = setInterval(() => {
+          meter.getFloatTimeDomainData(samples);
+          const level = Math.sqrt(samples.reduce((sum, x) => sum + x * x, 0) / samples.length);
+          const now = performance.now();
+          if (level > 0.02) { spoke = true; quietSince = now; }
+          if ((spoke && now - quietSince > 1100) || now - started > 9000) cc.askStop();
+        }, 80);
+        recorder.ondataavailable = (e) => e.data.size && parts.push(e.data);
+        recorder.onstop = async () => {
+          clearInterval(watch);
+          stream.getTracks().forEach((t) => t.stop());
+          ctx.close();
+          asking = null;
+          try {
+            const r = await fetch(url, { method: "POST", body: new Blob(parts, { type: recorder.mimeType }) });
+            resolve(r.ok ? (await r.json()).text || "" : "");
+          } catch (e) {
+            resolve("");
+          }
+        };
+        asking = recorder;
+        recorder.start();
+      } catch (e) {
+        resolve("error:" + e.message);
+      }
+    });
+  cc.askStop = () => { if (asking && asking.state === "recording") asking.stop(); };
+
   // SAM answers about once a second, but a mask should stay on the object in between. Every few milliseconds, block-match
   // the mask's region against the tiny grey copy of the exact frame SAM saw, and slide the mask by that displacement.
   // Matching against that frame, not the previous one, means small motions add up instead of rounding away to nothing.

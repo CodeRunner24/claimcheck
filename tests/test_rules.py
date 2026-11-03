@@ -1,3 +1,4 @@
+"""The rules on their own: no models, no images, just observations and verdicts."""
 import sys
 from pathlib import Path
 

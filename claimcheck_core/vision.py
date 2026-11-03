@@ -24,6 +24,8 @@ PALETTE = {"verified": (22, 163, 74), "contradicted": (220, 38, 38), "not_visibl
 
 @dataclass
 class Instance:
+    """One object SAM found: where it is, how sure SAM is, and its outline."""
+
     box: tuple[int, int, int, int]
     confidence: float
     mask: np.ndarray | None  # bool array sized to the box
@@ -32,6 +34,19 @@ class Instance:
     @property
     def short_side(self) -> int:
         return min(self.box[2] - self.box[0], self.box[3] - self.box[1])
+
+    @property
+    def area(self) -> int:
+        return (self.box[2] - self.box[0]) * (self.box[3] - self.box[1])
+
+    def in_full_view(self, width: int, height: int) -> bool:
+        """Clear of the frame's edges, so the whole object is in shot rather than cut off."""
+        return self.box[0] > 2 and self.box[1] > 2 and self.box[2] < width - 3 and self.box[3] < height - 3
+
+
+def largest(instances: list[Instance]) -> Instance:
+    """The biggest of several matches, which is the one worth reading or showing."""
+    return max(instances, key=lambda i: i.area)
 
 
 def prepare_image(raw: bytes) -> bytes:
@@ -45,6 +60,7 @@ def prepare_image(raw: bytes) -> bytes:
 
 
 def shrink(jpeg: bytes, side: int = TICK_SIDE) -> bytes:
+    """A smaller copy, so a SAM tick on it answers faster."""
     im = Image.open(io.BytesIO(jpeg)).convert("RGB")
     im.thumbnail((side, side))
     buf = io.BytesIO()
@@ -53,6 +69,7 @@ def shrink(jpeg: bytes, side: int = TICK_SIDE) -> bytes:
 
 
 def parse_sam(text: str, min_confidence: float = 0.4) -> list[Instance]:
+    """SAM's text output to instances, dropping weak matches. A mask that won't decode still leaves a usable box."""
     out = []
     for m in _RECORD.finditer(text):
         conf = float(m.group(8)) if m.group(8) else 1.0
@@ -79,6 +96,7 @@ def parse_video(lines: list[str], min_confidence: float = 0.4) -> dict[int, list
 
 
 def crop(jpeg: bytes, box: tuple[int, int, int, int], pad: float = 0.12, min_side: int = 512) -> bytes:
+    """A close-up of one box with some margin, enlarged if needed so Muse Spark can read it."""
     im = Image.open(io.BytesIO(jpeg)).convert("RGB")
     x1, y1, x2, y2 = box
     px, py = int((x2 - x1) * pad), int((y2 - y1) * pad)
@@ -92,10 +110,17 @@ def crop(jpeg: bytes, box: tuple[int, int, int, int], pad: float = 0.12, min_sid
 
 
 def sharpness(jpeg: bytes, box=None) -> float:
+    """Laplacian variance of the frame or of one box. Low means blurry."""
     a = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_GRAYSCALE)
     if box:
         a = a[box[1]:box[3], box[0]:box[2]]
     return float(cv2.Laplacian(a, cv2.CV_64F).var()) if a.size else 0.0
+
+
+def brightness(jpeg: bytes) -> float:
+    """How bright the brighter parts of the frame are. Using the mean would call a black shirt filling the frame a dark room."""
+    a = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_GRAYSCALE)
+    return float(np.percentile(a, 95)) if a.size else 0.0
 
 
 def _font(size: int):
@@ -139,6 +164,7 @@ def annotate(jpeg: bytes, layers: list[dict]) -> bytes:
 
 
 def image_size(jpeg: bytes) -> tuple[int, int]:
+    """(width, height) of a JPEG without decoding its pixels."""
     with Image.open(io.BytesIO(jpeg)) as im:
         return im.size
 
@@ -294,4 +320,5 @@ def hero(jpeg: bytes, instances: list[Instance], backdrop: bytes) -> tuple[bytes
 
 
 def to_data_url(jpeg: bytes) -> str:
+    """A JPEG as a data URL, for showing a frame without writing it to disk."""
     return "data:image/jpeg;base64," + base64.b64encode(jpeg).decode()

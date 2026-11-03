@@ -1,7 +1,8 @@
-"""Record the silent backup demo from the running app in sample mode: real UI, live Meta API calls.
+"""Record the picture for the demo video from the running app in sample mode: real UI, live Meta API calls, no text added.
 
-Start `reflex run` first, then:  python -u scripts/record_demo.py
-Output: demo/claimcheck_demo.mp4. The strong version of this video is filmed with a real product; see the README.
+Start the app first, then:  python -u scripts/record_demo.py
+Output: demo/claimcheck_demo.mp4, plus demo/tmp/timeline.json with when each part starts in the cut video, for laying a voice-over
+on top. Waiting is cut out and nothing else is changed. The strong version of this video is filmed with a real product; see the README.
 """
 import json
 import subprocess
@@ -18,75 +19,106 @@ from claimcheck_core.take import FFMPEG
 OUT = ROOT / "demo"
 TMP = OUT / "tmp"
 TMP.mkdir(parents=True, exist_ok=True)
-st = json.loads((ROOT / "eval" / "results_stress.json").read_text(encoding="utf-8"))["summary"]
-real = json.loads((ROOT / "eval" / "results_real.json").read_text(encoding="utf-8"))["summary"]
-FONT = "https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap"
+QUESTIONS = ["Is it really 100% cotton?", "Does it have a pocket?", "Does it have a zipper?", "Is it comfortable?"]
 
 
-def card(big: str, small: str = "") -> str:
-    return f"""<html><head><link href="{FONT}" rel="stylesheet"></head><body style="margin:0;height:100vh;box-sizing:border-box;background:#ffdd00;color:#111;
-    font-family:Archivo,Arial;padding:56px;display:flex;flex-direction:column;justify-content:space-between">
-    <div style="font-size:112px;line-height:.92;font-weight:900;font-stretch:75%;text-transform:uppercase;letter-spacing:-.02em">{big}</div>
-    <div style="font-size:30px;line-height:1.3;font-weight:500;max-width:1150px">{small}</div></body></html>"""
-
-
-INTRO = card("Listings are written from memory.", "Buyers find out what's true when they open the parcel. Sellers should find out first.")
-HOW = card("Models observe. Rules decide.",
-           "SAM 3.1 finds and tracks the evidence. Muse Spark reads it. Muse Voice hears the seller. Muse Image draws only the background. "
-           "Plain Python decides counts, percentages and colors. If the evidence can't be seen, the answer is &ldquo;not settled&rdquo;, never &ldquo;wrong&rdquo;.")
-SCORE = card(f"{real['correct']} of {real['claims']} right. {real['wrong']} wrong.",
-             f"{real['photos']} real photos by other people, labelled by hand: {real['left_open']} claims left open. "
-             f"{st['claims']} damaged photos: {st['wrong']} wrong, all left open. "
-             "This clip and its seller are AI-generated and scripted. A real seller filming live is not measured yet. Built during the hackathon.")
+def kept_time(moment: float, cuts: list[tuple[float, float]]) -> float:
+    """Where a moment of the raw recording lands once the waiting is cut out."""
+    removed = 0.0
+    position = 0.0
+    for start, end in sorted(cuts):
+        start = max(start, position)
+        if end <= start:
+            continue
+        if moment >= end:
+            removed += end - start
+        elif moment > start:
+            removed += moment - start
+        position = end
+    return moment - removed
 
 
 def main():
     with sync_playwright() as p:
-        browser = p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
-        ctx = browser.new_context(viewport={"width": 1440, "height": 810}, record_video_dir=str(TMP),
-                                  record_video_size={"width": 1440, "height": 810})
+        # Microsoft Edge rather than bundled Chromium: the bundled build can't play the H.264 clips the app makes.
+        browser = p.chromium.launch(channel="msedge", args=["--autoplay-policy=no-user-gesture-required", "--headless=new"])
+        ctx = browser.new_context(viewport={"width": 1440, "height": 810}, record_video_dir=str(TMP), record_video_size={"width": 1440, "height": 810})
         pg = ctx.new_page()
         t0 = time.time()
+        clock = lambda: time.time() - t0  # noqa: E731
+        cuts: list[tuple[float, float]] = []  # stretches of waiting to remove
+        marks: dict[str, float] = {}
+
+        def mark(name: str):
+            marks[name] = clock()
+            print(name, round(marks[name], 1), flush=True)
+
         pg.goto("http://localhost:3000", wait_until="networkidle", timeout=180000)
         pg.wait_for_selector("#go-sample")
-        start_clip = time.time() - t0
-        pg.set_content(INTRO)
-        pg.wait_for_timeout(4500)
-        pg.goto("http://localhost:3000", wait_until="networkidle")
-        pg.wait_for_selector("#go-sample")
-        pg.wait_for_timeout(3500)
+        cuts.append((0.0, clock()))
+        mark("1_start_screen")
+        pg.wait_for_timeout(13000)
         pg.click("#go-sample")
         pg.wait_for_selector("#cc-tag", timeout=30000)
-        print("live", round(time.time() - t0, 1), flush=True)
-        while pg.locator("#finish").count() and time.time() - t0 < 200:
-            pg.wait_for_timeout(300)
-        cut_from = time.time() - t0 + 1.5
-        print("cutting", round(cut_from, 1), flush=True)
+        mark("2_filming")
+        struck = shown = 0
+        while pg.locator("#finish").count() and clock() < 220:
+            count = pg.locator(".seg.contradicted").count()
+            if count != struck:
+                struck = count
+                shown += 1
+                mark(f"filming_strike_{shown}")
+            pg.wait_for_timeout(200)
+        cutting_from = clock() + 1.0
         pg.wait_for_selector("#approve", timeout=240000)
-        cut_to = time.time() - t0 - 1.0
-        print("reveal", round(cut_to, 1), flush=True)
-        pg.wait_for_timeout(5000)
-        pg.locator("#cc-reel").scroll_into_view_if_needed()
-        pg.wait_for_timeout(9000)
-        pg.locator("summary").click()
-        pg.locator("summary").scroll_into_view_if_needed()
-        pg.mouse.wheel(0, 1200)
-        pg.wait_for_timeout(5000)
-        pg.set_content(HOW)
-        pg.wait_for_timeout(6500)
-        pg.set_content(SCORE)
-        pg.wait_for_timeout(6500)
-        total = time.time() - t0
+        cuts.append((cutting_from, clock() - 0.5))
+        mark("5_listing")
+        pg.wait_for_timeout(8000)
+        pg.evaluate("document.querySelector('#cc-noticed, .facts')?.scrollIntoView({behavior:'smooth',block:'center'})")
+        pg.wait_for_timeout(6000)
+        pg.evaluate("document.getElementById('cc-ask-band').scrollIntoView({behavior:'smooth',block:'start'})")
+        mark("6_ask")
+        pg.wait_for_timeout(4000)
+        for count, question in enumerate(QUESTIONS, 1):
+            pg.locator("#cc-question").press_sequentially(question, delay=45)
+            pg.wait_for_timeout(300)
+            mark(f"question_{count}")
+            pg.press("#cc-question", "Enter")
+            pg.wait_for_selector(".strip.scanning", timeout=8000)
+            pg.wait_for_timeout(2600)  # enough of the search to see it working
+            waiting = clock()
+            pg.wait_for_function(f"document.querySelectorAll('.answer').length === {count} && !document.querySelector('.strip.scanning')", timeout=150000)
+            if clock() - waiting > 1.5:
+                cuts.append((waiting, clock() - 1.0))
+            mark(f"answer_{count}")
+            pg.evaluate("document.getElementById('cc-answers').scrollIntoView({behavior:'smooth',block:'start'})")
+            print(question, "->", pg.locator(".a-head").first.inner_text(), flush=True)
+            pg.wait_for_timeout(6000)
+            pg.evaluate("document.getElementById('cc-ask-band').scrollIntoView({behavior:'smooth',block:'start'})")
+            pg.wait_for_timeout(500)
+        # End on the listing itself.
+        pg.evaluate("window.scrollTo({top:0,behavior:'smooth'})")
+        mark("7_end_on_listing")
+        pg.wait_for_timeout(14000)
+        total = clock()
         video = pg.video.path()
         ctx.close()
         browser.close()
 
-    keep = f"between(t,{start_clip:.2f},{cut_from:.2f})+between(t,{cut_to:.2f},{total:.2f})"
+    keep, position = [], 0.0
+    for start, end in sorted(cuts):
+        if start > position:
+            keep.append(f"between(t,{position:.2f},{start:.2f})")
+        position = max(position, end)
+    keep.append(f"between(t,{position:.2f},{total:.2f})")
     with open(OUT / "ffmpeg.log", "w") as log:
-        subprocess.run([FFMPEG, "-y", "-i", str(video), "-vf", f"select='{keep}',setpts=N/FRAME_RATE/TB", "-r", "25",
+        subprocess.run([FFMPEG, "-y", "-i", str(video), "-vf", f"select='{'+'.join(keep)}',setpts=N/FRAME_RATE/TB", "-r", "25",
                         "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-an",
                         str(OUT / "claimcheck_demo.mp4")], check=True, stdout=log, stderr=subprocess.STDOUT)
-    print("video", OUT / "claimcheck_demo.mp4", flush=True)
+    timeline = {name: round(kept_time(at, cuts), 2) for name, at in marks.items()}
+    timeline["total"] = round(kept_time(total, cuts), 2)
+    (TMP / "timeline.json").write_text(json.dumps(timeline, indent=1), encoding="utf-8")
+    print("timeline", timeline, flush=True)
 
 
 if __name__ == "__main__":

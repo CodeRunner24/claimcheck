@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClaimCheck</title>
+<meta name="description" content="Film it. Say it. Sell what's true. A replay of one real run of ClaimCheck on Meta's models.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23ffdd00'/><path d='M3 8.5l3 3 7-7' stroke='%23111' stroke-width='2.4' fill='none'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<link href="claimcheck.css" rel="stylesheet">
+<style>
+.replay-note { background: var(--black); color: var(--yellow); font-size: 14px; font-weight: 700; padding: 10px clamp(18px, 3vw, 44px); line-height: 1.35; }
+.replay-note a { color: inherit; }
+.poster.short { min-height: 78vh; }
+.how { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: clamp(16px, 2.4vw, 32px); margin-bottom: clamp(28px, 4vw, 56px); }
+.how b { display: block; font-size: clamp(22px, 2.4vw, 32px); line-height: 1.02; font-weight: 900; font-stretch: 80%; margin-bottom: 8px; }
+.how p { margin: 0; font-size: 16px; line-height: 1.38; color: #3c3c38; }
+.ask-picked { flex: 1 1 320px; min-width: 0; min-height: 58px; box-sizing: border-box; background: var(--white); color: var(--black); padding: 14px 18px; font: 700 clamp(20px, 2.2vw, 28px)/1.2 var(--type); }
+.ask-picked:empty::before { content: "Pick a question below"; color: #9c9a93; }
+.chip[aria-pressed="true"] { background: var(--yellow); color: var(--black); box-shadow: none; }
+.answer[hidden] { display: none; }
+.foot { display: flex; gap: 22px; flex-wrap: wrap; font-size: 16px; font-weight: 700; margin-top: 26px; }
+.foot a { color: var(--black); }
+</style>
+</head>
+<body>
+<div class="cc">
+<div class="replay-note">This page replays one real run with its recorded answers, so looking at it costs nothing and needs no key. The clip and its seller are AI-generated and scripted. <a href="https://github.com/CodeRunner24/claimcheck">Run the live app from the code</a> to film your own product and ask your own questions.</div>
+<header class="poster short">
+  <h1>Film it. Say it. Sell what's true.</h1>
+  <div class="promise" aria-hidden="true"><s>100% cotton</s><b>60% cotton</b></div>
+  <div class="poster-foot"><p>Point a camera at what you're selling and talk about it. Your listing writes itself, anything the camera proves wrong never makes it in, and buyers can question the footage for themselves.</p></div>
+</header>
+<main class="page">
+<div class="page-in">
+  <div class="how">
+    <div><b>The seller films and talks.</b><p>Muse Voice hears each sentence. Muse Spark turns it into facts a camera could check.</p></div>
+    <div><b>The camera checks.</b><p>SAM 3.1 hunts for the evidence on every frame and coaches the shot. Plain Python rules decide what's true.</p></div>
+    <div><b>The listing writes itself.</b><p>Only what was established goes in. Damage nobody mentioned gets flagged.</p></div>
+    <div><b>Buyers ask the video.</b><p>Any question becomes a SAM 3.1 search through the footage, answered with the moment that shows it.</p></div>
+  </div>
+  <div class="product">
+    <div><img class="photo" src="media/hero_16.jpg" alt="Product photo"><p class="photo-note">The product is the camera's real pixels, 214,972 of them checked identical. Only the background was generated.</p><div class="reel-wrap"><h2>The take, every piece of evidence tracked</h2><video class="reel" src="media/reel_15.mp4" muted autoplay loop playsinline controls></video></div></div>
+    <div>
+      <div class="caught"><h2>3 things the seller said weren't true.</h2><ul><li><s>set of 2</s> → 1</li><li><s>100% cotton</s> → 60% Cotton / 40% Polyester</li><li><s>made in Portugal</s> → Made in Bangladesh</li></ul></div>
+      <h1>Black t-shirt with chest pocket</h1>
+      <p class="desc" style="border:0;min-height:0">Black t-shirt with chest pocket made from 60% Cotton / 40% Polyester. Made in Bangladesh. Includes 1 shirt with small hole near bottom hem.</p>
+      <div class="noticed"><h2>The camera also noticed</h2><div class="noticed-row"><span>Small hole near bottom hem</span></div></div>
+      <div class="facts"><div class="fact claim"><span>quantity</span><b>1<em class="fixed-tag">said 2</em></b><div class="proof"><img src="media/evidence_9.jpg" alt=""></div></div><div class="fact claim"><span>color</span><b>black</b><div class="proof"><img src="media/evidence_9.jpg" alt=""></div></div><div class="fact claim"><span>material</span><b>60% Cotton / 40% Polyester<em class="fixed-tag">said 100% cotton</em></b><div class="proof"><img src="media/flat_11.jpg" alt=""></div></div><div class="fact claim"><span>origin</span><b>Made in Bangladesh<em class="fixed-tag">said Portugal</em></b><div class="proof"><img src="media/flat_11.jpg" alt=""></div></div><div class="fact claim"><span>feature</span><b>chest pocket</b><div class="proof"><img src="media/first_look_6.jpg" alt=""></div></div></div>
+      <p class="small">Nothing is published automatically. A match is what the camera saw, not a certification, and printed labels can be wrong too.</p>
+    </div>
+  </div>
+  <section class="ask" id="ask">
+    <p class="ask-eyebrow">What the buyer gets</p>
+    <h2>Don't trust the seller. Ask the video.</h2>
+    <div class="ask-form"><div class="ask-picked" id="picked" aria-live="polite"></div></div>
+    <div class="chips"><button type="button" class="chip" data-i="0">Is it really 100% cotton?</button><button type="button" class="chip" data-i="1">Do I get two shirts?</button><button type="button" class="chip" data-i="2">Was it made in Portugal?</button><button type="button" class="chip" data-i="3">Does it have a pocket?</button><button type="button" class="chip" data-i="4">Any holes or stains?</button><button type="button" class="chip" data-i="5">Does it have a zipper?</button><button type="button" class="chip" data-i="6">What does the back look like?</button><button type="button" class="chip" data-i="7">Is it comfortable?</button></div>
+    <div class="strip" id="strip"><img class="strip-img" src="media/strip_12.jpg" alt=""><div class="strip-cells" id="cells"><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i><i class="cell"></i></div></div>
+    <p class="ask-stage" id="stage">Every second of the seller's 18-second video, searchable. If it was never filmed, the answer says so.</p>
+    <div id="answers"></div>
+  </section>
+  <details class="machine">
+    <summary>How it knows: 36 live Meta model calls, $0.377</summary>
+    <div><span>muse-spark-1.3</span><span>listen to the seller</span><span>8.7s</span><span>$0.0055</span></div><div><span>muse-spark-1.3</span><span>listen to the seller</span><span>7.0s</span><span>$0.0043</span></div><div><span>muse-spark-1.3</span><span>first look at the product</span><span>6.9s</span><span>$0.0045</span></div><div><span>sam-3.1</span><span>track &quot;neck label&quot; through 108 frames</span><span>4.2s</span><span>$0.0216</span></div><div><span>sam-3.1</span><span>track &quot;care label&quot; through 108 frames</span><span>4.7s</span><span>$0.0216</span></div><div><span>sam-3.1</span><span>track &quot;t-shirt&quot; through 108 frames</span><span>6.1s</span><span>$0.0216</span></div><div><span>muse-spark-1.3</span><span>read &quot;t-shirt&quot;</span><span>4.7s</span><span>$0.0038</span></div><div><span>muse-spark-1.3</span><span>read &quot;care label&quot;</span><span>5.3s</span><span>$0.0052</span></div><div><span>sam-3.1</span><span>track &quot;care label&quot; through 56 frames</span><span>3.3s</span><span>$0.0112</span></div><div><span>sam-3.1</span><span>track &quot;t-shirt&quot; through 56 frames</span><span>4.2s</span><span>$0.0112</span></div><div><span>muse-spark-1.3</span><span>look for damage</span><span>4.8s</span><span>$0.0024</span></div><div><span>sam-3.1</span><span>segment &quot;hole&quot;</span><span>0.9s</span><span>$0.0025</span></div><div><span>sam-3.1</span><span>track &quot;t-shirt&quot; through 54 frames</span><span>5.5s</span><span>$0.0108</span></div><div><span>sam-3.1</span><span>track &quot;t-shirt&quot; through 108 frames</span><span>6.3s</span><span>$0.0216</span></div><div><span>muse-spark-1.3</span><span>suggest buyer questions</span><span>4.9s</span><span>$0.0033</span></div><div><span>muse-spark-1.3</span><span>write the listing</span><span>9.2s</span><span>$0.0061</span></div><div><span>muse-image-1.0</span><span>generate backdrop only</span><span>20.0s</span><span>$0.0100</span></div><div><span>muse-spark-1.3</span><span>understand the question</span><span>4.1s</span><span>$0.0025</span></div><div><span>sam-3.1</span><span>track &quot;care label&quot; through 108 frames</span><span>5.8s</span><span>$0.0216</span></div><div><span>muse-spark-1.3</span><span>understand the question</span><span>5.6s</span><span>$0.0021</span></div><div><span>sam-3.1</span><span>track &quot;t-shirt&quot; through 108 frames</span><span>5.9s</span><span>$0.0216</span></div><div><span>muse-spark-1.3</span><span>understand the question</span><span>4.3s</span><span>$0.0027</span></div><div><span>sam-3.1</span><span>track &quot;care label&quot; through 108 frames</span><span>4.5s</span><span>$0.0216</span></div><div><span>muse-spark-1.3</span><span>understand the question</span><span>2.3s</span><span>$0.0017</span></div><div><span>sam-3.1</span><span>track &quot;chest pocket&quot; through 108 frames</span><span>5.8s</span><span>$0.0216</span></div><div><span>muse-spark-1.3</span><span>understand the question</span><span>4.0s</span><span>$0.0022</span></div><div><span>sam-3.1</span><span>track &quot;hole&quot; through 108 frames</span><span>5.6s</span><span>$0.0216</span></div><div><span>muse-spark-1.3</span><span>understand the question</span><span>3.3s</span><span>$0.0020</span></div><div><span>sam-3.1</span><span>track &quot;zipper&quot; through 108 frames</span><span>4.5s</span><span>$0.0216</span></div><div><span>muse-spark-1.3</span><span>look through the take</span><span>6.7s</span><span>$0.0060</span></div><div><span>muse-spark-1.3</span><span>understand the question</span><span>3.8s</span><span>$0.0028</span></div><div><span>sam-3.1</span><span>track &quot;t-shirt back&quot; through 108 frames</span><span>5.8s</span><span>$0.0216</span></div><div><span>sam-3.1</span><span>track &quot;t-shirt&quot; through 108 frames</span><span>7.7s</span><span>$0.0216</span></div><div><span>muse-spark-1.3</span><span>check &quot;t-shirt back&quot;</span><span>6.8s</span><span>$0.0071</span></div><div><span>muse-spark-1.3</span><span>look through the take</span><span>10.3s</span><span>$0.0066</span></div><div><span>muse-spark-1.3</span><span>understand the question</span><span>2.0s</span><span>$0.0011</span></div>
+  </details>
+  <div class="foot"><a href="https://github.com/CodeRunner24/claimcheck">The code</a></div>
+</div>
+</main>
+</div>
+<script>
+const ANSWERS = [{"question": "Is it really 100% cotton?", "tone": "wrong", "headline": "60% Cotton / 40% Polyester", "sentence": "The seller said \"100% cotton\". The evidence shows 60% Cotton / 40% Polyester.", "at": "Seen at 0:14", "clip": "media/answer_17.mp4", "still": "", "flat": "media/flat_11.jpg", "how": "Decided earlier by a plain rule, from the seller's own footage. · took 10.8s live · $0.024", "cells": "00000000000000000001111111111111"}, {"question": "Do I get two shirts?", "tone": "wrong", "headline": "Only 1 in the video", "sentence": "The seller said set of 2. No more than 1 t-shirt was ever in view together.", "at": "Seen at 0:10", "clip": "media/answer_18.mp4", "still": "", "flat": "", "how": "Decided earlier by a plain rule, from the seller's own footage. · took 12.8s live · $0.024", "cells": "11111111111111111111111111111111"}, {"question": "Was it made in Portugal?", "tone": "wrong", "headline": "Made in Bangladesh", "sentence": "The seller said \"made in Portugal\". The evidence shows Made in Bangladesh.", "at": "Seen at 0:14", "clip": "media/answer_19.mp4", "still": "", "flat": "media/flat_11.jpg", "how": "Decided earlier by Muse Spark, from the seller's own footage. · took 9.7s live · $0.024", "cells": "00000000000000000001111111111111"}, {"question": "Does it have a pocket?", "tone": "right", "headline": "Chest pocket", "sentence": "It's clear on camera.", "at": "Seen at 0:10", "clip": "media/answer_20.mp4", "still": "", "flat": "", "how": "Decided earlier by Muse Spark, from the seller's own footage. · took 8.6s live · $0.023", "cells": "11111111111111111111100000000000"}, {"question": "Any holes or stains?", "tone": "wrong", "headline": "Small hole near bottom hem", "sentence": "The camera noticed this while the seller was filming.", "at": "Seen at 0:08", "clip": "media/answer_21.mp4", "still": "", "flat": "", "how": "Decided earlier by Muse Spark, from the seller's own footage. · took 10.4s live · $0.024", "cells": "00000000001111111111000000000000"}, {"question": "Does it have a zipper?", "tone": "unseen", "headline": "Not in this video", "sentence": "Neither model found \"zipper\" in the 18 seconds filmed. That isn't a no: the seller may not have filmed it.", "at": "", "clip": "", "still": "", "flat": "", "how": "Searched by SAM 3.1, then double-checked by Muse Spark. · took 14.5s live · $0.030", "cells": "00000000000000000000000000000000"}, {"question": "What does the back look like?", "tone": "unseen", "headline": "Not in this video", "sentence": "Neither model found \"t-shirt back\" in the 18 seconds filmed. That isn't a no: the seller may not have filmed it.", "at": "", "clip": "", "still": "", "flat": "", "how": "Searched by SAM 3.1, then double-checked by Muse Spark. · took 29.5s live · $0.060", "cells": "00000000000000000000000000000000"}, {"question": "Is it comfortable?", "tone": "nocamera", "headline": "A camera can't tell you that", "sentence": "No video could show this, so it isn't guessed. Ask the seller.", "at": "", "clip": "", "still": "", "flat": "", "how": "Muse Spark judged that no footage could answer this. · took 2.0s live · $0.001", "cells": "00000000000000000000000000000000"}];
+const strip = document.getElementById("strip"), stage = document.getElementById("stage"), picked = document.getElementById("picked");
+const cells = [...document.querySelectorAll("#cells .cell")], chips = [...document.querySelectorAll(".chip")], list = document.getElementById("answers");
+const STAGES = { fact: ["Reading the question", "SAM 3.1 is finding the evidence in the footage", "Cutting the moment"],
+                 look: ["Reading the question", "SAM 3.1 is searching the footage", "Muse Spark is checking what SAM found", "Cutting the moment"],
+                 none: ["Reading the question"] };
+const cards = new Map();
+let busy = false;
+
+function card(a) {
+  const el = document.createElement("article");
+  el.className = "answer " + a.tone;
+  const view = document.createElement("div");
+  view.className = "a-view";
+  if (a.clip) {
+    const v = document.createElement("video");
+    Object.assign(v, { src: a.clip, muted: true, loop: true, autoplay: true, playsInline: true, className: "a-clip" });
+    view.append(v);
+  } else if (a.still) {
+    const i = document.createElement("img");
+    Object.assign(i, { src: a.still, className: "a-clip", alt: "The frame that answers this" });
+    view.append(i);
+  }
+  const text = document.createElement("div");
+  text.className = "a-text";
+  const line = (tag, cls, value) => { const n = document.createElement(tag); n.className = cls; n.textContent = value; text.append(n); };
+  line("p", "a-q", a.question);
+  line("h3", "a-head", a.headline);
+  line("p", "a-said", a.sentence);
+  if (a.at) line("p", "a-at", a.at);
+  if (a.flat) { const f = document.createElement("img"); Object.assign(f, { src: a.flat, className: "a-flat", alt: "The label, flattened" }); text.append(f); }
+  line("small", "a-how", a.how);
+  el.append(view, text);
+  return el;
+}
+
+function paint(hits) { cells.forEach((c, i) => { c.className = "cell " + (hits ? (hits[i] === "1" ? "hit" : "miss") : ""); }); }
+const pause = (ms) => new Promise((r) => setTimeout(r, ms));
+const quiet = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+async function ask(i) {
+  if (busy) return;
+  const a = ANSWERS[i];
+  chips.forEach((c, n) => c.setAttribute("aria-pressed", n === i));
+  picked.textContent = a.question;
+  if (cards.has(i)) {
+    paint(a.cells);
+    const old = cards.get(i);
+    list.prepend(old);
+    old.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    return;
+  }
+  busy = true;
+  chips.forEach((c) => (c.disabled = true));
+  paint(null);
+  strip.classList.add("scanning");
+  const kind = a.tone === "nocamera" ? "none" : a.how.startsWith("Decided") ? "fact" : "look";
+  for (const line of STAGES[kind]) { stage.textContent = line; await pause(quiet ? 150 : 950); }
+  strip.classList.remove("scanning");
+  paint(a.cells);
+  const el = card(a);
+  cards.set(i, el);
+  list.prepend(el);
+  stage.textContent = "Replaying a recorded answer. It " + a.how.split(" · ").filter((p) => p.startsWith("took")).join("") + ".";
+  chips.forEach((c) => (c.disabled = false));
+  busy = false;
+  el.scrollIntoView({ behavior: quiet ? "auto" : "smooth", block: "nearest" });
+}
+chips.forEach((c, i) => c.addEventListener("click", () => ask(i)));
+</script>
+</body>
+</html>

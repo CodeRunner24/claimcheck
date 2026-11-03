@@ -15,7 +15,9 @@ from pathlib import Path
 import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from claimcheck_core import agent, perception, rules, vision
+from claimcheck_core import agent, perception, rules, vision
+
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 HERE = Path(__file__).parent
 CACHE = HERE / "images_real"
@@ -43,7 +45,7 @@ def run_case(case: dict) -> dict:
     claim = agent.Claim(id="c1", text=case["claimed"], attribute="", check=case["check"], claimed=case["claimed"],
                         sam_concept=case["concept"], shot_request="", attempts=1)
     try:
-        _, _, results = perception._inspect_concept(session, case["concept"], [claim], (CACHE / f"{case['image']}.jpg").read_bytes())
+        _, _, results = perception.inspect_concept(session, case["concept"], [claim], (CACHE / f"{case['image']}.jpg").read_bytes())
         r = results["c1"]
     except Exception as e:  # counted, never hidden
         r = {"verdict": "error", "rule": type(e).__name__, "detail": str(e)[:200], "observed": ""}

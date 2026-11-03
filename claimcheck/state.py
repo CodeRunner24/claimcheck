@@ -26,13 +26,14 @@ STICKER_WORD = {"verified": "True", "contradicted": "Not true"}
 
 
 def _svg(overlay: dict | None) -> str:
+    """The server's mask overlay as an SVG string, drawn over the browser's own video."""
     if not overlay or not overlay.get("paths"):
         return ""
     w, h = overlay["size"]
     color = MASK_COLOR.get(overlay["status"], MASK_COLOR["open"])
     width = max(2, w // 260)
     shapes = "".join(
-        f'<path d="{html.escape(p)}" fill="{color}" fill-opacity="{0.22 if overlay["status"] == "open" else 0.12}" '
+        f'<path d="{html.escape(p)}" fill="{color}" fill-opacity="{0.14 if overlay["status"] == "open" else 0.1}" '
         f'stroke="{color}" stroke-width="{width}" stroke-linejoin="round"/>'
         for p in overlay["paths"] if p
     )
@@ -50,6 +51,7 @@ def _svg(overlay: dict | None) -> str:
 
 
 class State(rx.State):
+    """One browser tab's view of its listing. The session itself stays in SESSIONS: it holds frames and locks, not strings."""
     phase: str = "start"  # start | live | cutting | reveal
     pasting: bool = False
     listing: str = DEFAULT_LISTING
@@ -84,17 +86,30 @@ class State(rx.State):
     cost: str = ""
     calls: list[dict[str, str]] = []
     warning: str = ""
+    # Asking the footage
+    can_ask: bool = False
+    question: str = ""
+    asking: bool = False
+    listening: bool = False
+    ask_stage: str = ""
+    strip: list[str] = []
+    strip_url: str = ""
+    answers: list[dict[str, str]] = []
+    suggestions: list[str] = []
 
     @rx.var
     def caught(self) -> list[dict[str, str]]:
+        """What the seller said that the camera disproved."""
         return [c for c in self.claims if c["verdict"] == "contradicted"]
 
     @rx.var
     def established(self) -> list[dict[str, str]]:
+        """The facts that may go in the listing's table."""
         return [c for c in self.claims if c["verdict"] in ("verified", "contradicted") and c["human"] != "disagree" and c["source"] != "noticed"]
 
     @rx.var
     def unproven(self) -> str:
+        """What the seller said that the camera never got a clear look at."""
         return ", ".join(c["text"] for c in self.claims if c["source"] == "said" and c["verdict"] in ("open", "not_visible"))
 
     @rx.var
@@ -118,6 +133,7 @@ class State(rx.State):
         return f"cc/{session.out_dir.name}/{name}" if name and session.out_dir else ""
 
     def _lights(self, s: agent.Session) -> None:
+        """Refresh the model-call ticker, any voice error and the finishing progress."""
         if s.trace:
             t = s.trace[-1]
             self.ticker = f"{t.model} · {t.purpose} · {t.ms / 1000:.1f}s · ${s.cost():.3f} so far"
@@ -129,6 +145,7 @@ class State(rx.State):
         self.progress = int(100 * sum(parts) / 4)
 
     def _sync(self, s: agent.Session) -> None:
+        """Copy the session's claims into plain strings the browser can render. The agent's own unmet wishes stay hidden."""
         self._lights(s)
         self.claims = [{
             "id": c.id, "text": c.text, "attribute": c.attribute, "source": c.source, "verdict": c.verdict,
@@ -141,6 +158,7 @@ class State(rx.State):
         self.seen = [c.observed or c.text for c in s.claims if c.source == "seen"]
 
     def _show(self, overlay: dict | None) -> None:
+        """Draw a mask overlay and keep the viewfinder at the frame's aspect ratio."""
         self.masks = _svg(overlay)
         if overlay:
             w, h = overlay["size"]
@@ -181,6 +199,7 @@ class State(rx.State):
 
     @rx.event
     def reset_all(self):
+        """Back to the start screen, releasing the microphone and the camera."""
         SESSIONS.pop(self._token(), None)
         self.reset()
         return rx.call_script("cc.micStop(); cc.stream && cc.source!=='sample' && cc.stream.getTracks().forEach(t=>t.stop())")
@@ -241,6 +260,7 @@ class State(rx.State):
 
     @rx.event
     def camera_result(self, result: str):
+        """The browser's answer to asking for the camera: 'ok:<aspect ratio>' or 'error:<reason>'."""
         if result.startswith("ok"):
             self.camera_on = True
             self.ratio = result.split(":", 1)[1] if ":" in result else self.ratio
@@ -251,11 +271,13 @@ class State(rx.State):
 
     @rx.event
     def mic_result(self, result: str):
+        """A microphone failure doesn't stop filming: the seller can still paste a listing."""
         if result != "ok" and self.phase == "live":
             self.error = f"Microphone unavailable ({result.replace('error:', '')}). You can paste a listing instead."
 
     @rx.event
     def maybe_roll(self):
+        """Start the live loop once the camera and the session are both ready, whichever finished last."""
         if self.live or not (self.camera_on and self.ready):
             return
         s = self._session()
@@ -268,11 +290,13 @@ class State(rx.State):
     # ---------- The live loop ----------
     @rx.event
     def live_tick(self):
+        """Ask the browser for the next frame."""
         if self.live:
             return rx.call_script("cc.nextFrame(0)", callback=State.live_frame)
 
     @rx.event
     def live_frame(self, url: str):
+        """Park the frame and process it in a background event, so model calls don't hold the state lock."""
         if not self.live:
             return
         if not url:
@@ -282,6 +306,7 @@ class State(rx.State):
 
     @rx.event(background=True)
     async def live_process(self):
+        """One tick: run the director off the event loop, show what it decided, then schedule the next frame."""
         async with self:
             token = self._token()
             raw = PENDING_FRAME.pop(token, None)
@@ -333,11 +358,12 @@ class State(rx.State):
 
     @staticmethod
     def _cue(session: agent.Session) -> str:
+        """Which part of the sample clip fits what the director is asking for now."""
         pending = session.open_claims
         if not pending or session.script or session.hearing:  # the scripted seller is still talking
             return "wide" if session.shots else "far"
         claim = pending[0]
-        if claim.check in ("composition", "text", "read"):
+        if claim.reads_print:
             return "label"
         return "wide" if claim.attempts > 0 else "far"
 
@@ -356,6 +382,7 @@ class State(rx.State):
     # ---------- Uploads ----------
     @rx.event
     async def handle_upload(self, files: list[rx.UploadFile]):
+        """Route an uploaded file to the video path or the still-photo path."""
         if not files:
             return
         data = await files[0].read()
@@ -369,6 +396,7 @@ class State(rx.State):
 
     @rx.event(background=True)
     async def process_upload(self):
+        """Check an uploaded video or photo in one pass, since nobody is there to coach."""
         async with self:
             token = self._token()
             session = SESSIONS.get(token)
@@ -394,6 +422,7 @@ class State(rx.State):
     # ---------- Cutting ----------
     @rx.event
     def finish_take(self):
+        """Stop filming and have the browser post the recording."""
         self.live = False
         s = self._session()
         key = s.out_dir.name if s and s.out_dir else "none"
@@ -403,6 +432,7 @@ class State(rx.State):
 
     @rx.event
     def take_ready(self, result: str):
+        """The browser finished posting the recording. Finishing starts whether or not it arrived."""
         s = self._session()
         if s and s.out_dir and s.out_dir.name in TAKES_BY_KEY:
             PENDING_TAKE[self._token()] = TAKES_BY_KEY.pop(s.out_dir.name)
@@ -410,6 +440,7 @@ class State(rx.State):
 
     @rx.event(background=True)
     async def cut(self):
+        """Finish the listing. A part that fails ends up in the warning rather than ending the session."""
         async with self:
             token = self._token()
             session = SESSIONS.get(token)
@@ -430,9 +461,90 @@ class State(rx.State):
                                   + (f", {info['product_pixels']:,} of them checked identical. " if info["pixel_exact"] else ", but they could not be confirmed identical. ")
                                   + "Only the background was generated.")
             self.warning = session.leak_warning or "; ".join(session.progress.get("errors", []))
-            self.cost = f"${session.cost():.3f}"
-            self.calls = [{"model": t.model, "purpose": t.purpose, "ms": f"{t.ms / 1000:.1f}s", "usd": f"${t.usd:.4f}"} for t in session.trace]
+            self._ledger(session)
+            self.can_ask = session.take is not None
+            self.strip_url = self._url(session, session.strip)
+            self.strip = [""] * agent.STRIP_CELLS
+            self.suggestions = session.suggestions
+            self.answers, self.question = [], ""
             self.phase, self.busy = "reveal", False
+
+    def _ledger(self, session: agent.Session) -> None:
+        """Every model call this listing has made, for the 'How it knows' panel."""
+        self.cost = f"${session.cost():.3f}"
+        self.calls = [{"model": t.model, "purpose": t.purpose, "ms": f"{t.ms / 1000:.1f}s", "usd": f"${t.usd:.4f}"} for t in session.trace]
+
+    # ---------- Asking the footage ----------
+    @rx.event
+    def set_question(self, value: str):
+        self.question = value
+
+    @rx.event
+    def ask_typed(self, _form: dict):
+        """The question box was submitted."""
+        return State.ask(self.question)
+
+    @rx.event(background=True)
+    async def ask(self, question: str):
+        """Answer a buyer's question, mirroring the search onto the filmstrip while it runs."""
+        async with self:
+            session = self._session()
+            question = question.strip()
+            if not question or self.asking or session is None:
+                return
+            self.asking, self.question, self.ask_stage, self.error = True, question, "Reading the question", ""
+            self.strip = [""] * agent.STRIP_CELLS
+        work = asyncio.ensure_future(asyncio.to_thread(agent.ask, session, question))
+        seen = None
+        while not work.done():
+            now = session.asking
+            key = (now.get("stage"), "".join(c[:1] or "." for c in now.get("cells", [])))
+            if key != seen and now:
+                seen = key
+                async with self:
+                    self.ask_stage, self.strip = now["stage"], list(now["cells"])
+            await asyncio.sleep(0.1)
+        try:
+            card = work.result()
+        except Exception as e:
+            async with self:
+                self.asking, self.ask_stage, self.error = False, "", str(e)[:300]
+            return
+        async with self:
+            self.strip = list(session.asking.get("cells", self.strip))
+            self.answers = [{
+                "id": str(len(self.answers)), "question": card["question"], "tone": card["tone"], "headline": card["headline"],
+                "sentence": card["sentence"], "at": f"Seen at {card['at']}" if card["at"] else "",
+                "clip": self._url(session, card["clip"]), "flat": self._url(session, card["flat"]),
+                "still": "" if card["clip"] else self._url(session, card["still"]),
+                "how": " · ".join(x for x in (card["how"], card.get("seconds", ""), card.get("usd", "")) if x),
+            }] + self.answers
+            self.asking, self.ask_stage, self.question = False, "", ""
+            self._ledger(session)
+        yield rx.call_script("cc.sound('right');document.getElementById('cc-answers')?.scrollIntoView({behavior:'smooth',block:'nearest'})")
+
+    @rx.event
+    def toggle_voice(self):
+        """Start or stop recording a spoken question."""
+        s = self._session()
+        if not s or not s.out_dir or self.asking:
+            return
+        if self.listening:
+            return rx.call_script("cc.askStop()")
+        self.listening = True
+        url = f"{rx.config.get_config().api_url}/cc/question/{s.out_dir.name}"
+        return rx.call_script(f"cc.askListen({json.dumps(url)})", callback=State.voice_heard)
+
+    @rx.event
+    def voice_heard(self, text: str):
+        """The spoken question as text, or 'error:<reason>' if the microphone failed."""
+        self.listening = False
+        if text.startswith("error:"):
+            self.error = f"Microphone unavailable ({text[6:]}). You can type the question."
+        elif text.strip():
+            return State.ask(text)
+        else:
+            self.error = "I didn't catch that. Try again, or type it."
 
     @rx.event
     def copy_listing(self):
@@ -440,6 +552,7 @@ class State(rx.State):
 
     @rx.event
     def download_proof(self):
+        """Write the proof page with the seller's current edits, and download it."""
         s = self._session()
         if not s:
             return

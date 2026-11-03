@@ -13,7 +13,9 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from claimcheck_core import agent, finishing, meta_api as api, vision
+from claimcheck_core import agent, finishing, meta_api as api, vision
+
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 HERE = Path(__file__).parent
 FOLDER = HERE / "images_condition"

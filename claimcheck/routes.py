@@ -11,11 +11,13 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route, WebSocketRoute
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
-from claimcheck_core import agent, speech
+from claimcheck_core import agent, speech, take
+from claimcheck_core import meta_api as api
 
 from .state import SESSIONS, TAKES_BY_KEY
 
 MAX_TAKE_BYTES = 300 * 1024 * 1024
+MAX_QUESTION_AUDIO_BYTES = 8 * 1024 * 1024
 
 
 async def receive_take(request: Request) -> JSONResponse:
@@ -28,6 +30,23 @@ async def receive_take(request: Request) -> JSONResponse:
         return JSONResponse({"error": "take too large"}, status_code=413)
     TAKES_BY_KEY[key] = body
     return JSONResponse({"ok": True})
+
+
+async def spoken_question(request: Request) -> JSONResponse:
+    """A buyer's question said out loud, as text."""
+    key = request.path_params["key"]
+    session = next((s for s in SESSIONS.values() if s.out_dir and s.out_dir.name == key), None)
+    if session is None:
+        return JSONResponse({"error": "unknown session"}, status_code=404)
+    body = await request.body()
+    if not body or len(body) > MAX_QUESTION_AUDIO_BYTES:
+        return JSONResponse({"text": ""})
+
+    def transcribe() -> str:
+        wav = take.audio_wav(body)
+        return api.transcribe(wav, session.trace) if wav else ""
+
+    return JSONResponse({"text": await asyncio.to_thread(transcribe)})
 
 
 async def microphone(socket: WebSocket) -> None:
@@ -58,13 +77,14 @@ async def microphone(socket: WebSocket) -> None:
         asyncio.ensure_future(asyncio.to_thread(agent.hear, session, text))
 
     try:
-        await speech.relay(next_audio, send_caption, on_sentence, session.trace)
+        await speech.keep_listening(next_audio, send_caption, on_sentence, session.trace)
     except Exception as e:
         session.progress["voice_error"] = str(e)[:200]
         await send_caption("")
 
 
 take_api = Starlette(
-    routes=[Route("/cc/take/{key}", receive_take, methods=["POST"]), WebSocketRoute("/cc/mic/{key}", microphone)],
+    routes=[Route("/cc/take/{key}", receive_take, methods=["POST"]), Route("/cc/question/{key}", spoken_question, methods=["POST"]),
+            WebSocketRoute("/cc/mic/{key}", microphone)],
     middleware=[Middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])],
 )

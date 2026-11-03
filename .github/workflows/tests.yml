@@ -9,5 +9,5 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -r requirements.txt pyflakes
-      - run: python -m pyflakes claimcheck_core/rules.py claimcheck_core/vision.py claimcheck_core/take.py claimcheck_core/director.py claimcheck_core/finishing.py
+      - run: python -m pyflakes claimcheck_core claimcheck scripts eval tests
       - run: python -m pytest -q tests

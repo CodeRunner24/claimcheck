@@ -14,7 +14,9 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from claimcheck_core import agent, perception, rules
+from claimcheck_core import agent, perception, rules
+
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 HERE = Path(__file__).parent
 EXCLUDED = {"feat03"}  # the generated image is not recognisably a backpack
@@ -68,7 +70,7 @@ def run_case(case: dict) -> dict:
     jpeg = (HERE / "images" / f"{case['image']}.jpg").read_bytes()
     t0 = time.time()
     try:
-        _, _, results = perception._inspect_concept(session, case["concept"], [claim], jpeg)
+        _, _, results = perception.inspect_concept(session, case["concept"], [claim], jpeg)
         r = results["c1"]
     except Exception as e:  # counted, never hidden
         r = {"verdict": "error", "rule": type(e).__name__, "detail": str(e)[:200], "observed": ""}

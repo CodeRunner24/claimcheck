@@ -22,6 +22,7 @@ def _claim_from(session: Session, c: dict, source: str = "said") -> Claim:
 
 
 def extract_claims(session: Session) -> None:
+    """A typed listing split into claims a camera could check."""
     data = api.spark_json(CLAIMS_PROMPT.format(listing=session.listing), purpose="split listing into claims",
                           trace=session.trace, effort="low")
     for c in data.get("claims", [])[:8]:

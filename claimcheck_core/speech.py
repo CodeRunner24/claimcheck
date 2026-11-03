@@ -14,6 +14,24 @@ from . import meta_api as api
 
 URL = "wss://api.meta.ai/v1/asr/realtime"
 KEYWORDS = ["cotton", "polyester", "t-shirt", "linen", "wool", "made in"]
+MAX_RECONNECTS = 4
+STABLE_SECONDS = 20.0  # a stream that lasted this long counts as having worked
+
+
+async def keep_listening(next_audio, send_caption, on_sentence, trace=None) -> None:
+    """The relay, reconnected when the stream drops. A busy machine can fall behind real time, and that shouldn't end the listening."""
+    failures = 0
+    while True:
+        began = time.time()
+        try:
+            await relay(next_audio, send_caption, on_sentence, trace)
+            return
+        except (api.ApiError, websockets.WebSocketException, OSError):
+            failures = 1 if time.time() - began > STABLE_SECONDS else failures + 1
+            if failures > MAX_RECONNECTS:
+                raise
+            await send_caption("")
+            await asyncio.sleep(0.2)
 
 
 async def relay(next_audio, send_caption, on_sentence, trace=None) -> None:

@@ -6,7 +6,7 @@
   "correct_despite_damage": 0,
   "errors": 0,
   "wrong_by_damage": {},
-  "usd_total": 0.151
+  "usd_total": 0.1465
  },
  "results": [
   {
@@ -84,7 +84,7 @@
    "rule": "evidence_not_visible",
    "observed": "60% COTTON / 40%",
    "wrong": false,
-   "usd": 0.007963000000000001
+   "usd": 0.00829555
   },
   {
    "damage": "right_half_cut",
@@ -93,9 +93,9 @@
    "truth": "contradicted",
    "got": "not_visible",
    "rule": "evidence_not_visible",
-   "observed": "60% COTTON / 40% [fibre name cut off]",
+   "observed": "60% COTTON / 40% [second fibre cut off]",
    "wrong": false,
-   "usd": 0.00999875
+   "usd": 0.00950575
   },
   {
    "damage": "heavy_blur",
@@ -260,7 +260,7 @@
    "rule": "evidence_not_visible",
    "observed": "100% POLY",
    "wrong": false,
-   "usd": 0.00831575
+   "usd": 0.00850275
   },
   {
    "damage": "right_half_cut",
@@ -269,9 +269,9 @@
    "truth": "contradicted",
    "got": "not_visible",
    "rule": "evidence_not_visible",
-   "observed": "100% POLY",
+   "observed": "100% POLY / MADE IN VI - text cut off on right",
    "wrong": false,
-   "usd": 0.01221555
+   "usd": 0.00744705
   },
   {
    "damage": "heavy_blur",
@@ -348,7 +348,7 @@
    "rule": "evidence_not_visible",
    "observed": "70% VISCOS",
    "wrong": false,
-   "usd": 0.00859825
+   "usd": 0.0088575
   },
   {
    "damage": "right_half_cut",
@@ -359,7 +359,7 @@
    "rule": "evidence_not_visible",
    "observed": "70% VISCOS",
    "wrong": false,
-   "usd": 0.00830955
+   "usd": 0.008380750000000001
   },
   {
    "damage": "heavy_blur",
@@ -434,9 +434,9 @@
    "truth": "verified",
    "got": "not_visible",
    "rule": "evidence_not_visible",
-   "observed": "%100 PA [truncated]",
+   "observed": "%100 PA (truncated)",
    "wrong": false,
-   "usd": 0.00811955
+   "usd": 0.00796905
   },
   {
    "damage": "right_half_cut",
@@ -445,9 +445,9 @@
    "truth": "contradicted",
    "got": "not_visible",
    "rule": "evidence_not_visible",
-   "observed": "%100 PA [truncated]",
+   "observed": "%100 PA [cut off]",
    "wrong": false,
-   "usd": 0.0075250000000000004
+   "usd": 0.00756855
   }
  ]
 }

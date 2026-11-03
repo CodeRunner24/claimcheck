@@ -15,7 +15,9 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from claimcheck_core import meta_api as api
-from claimcheck_core import rules, vision
+from claimcheck_core import rules, vision
+
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 HERE = Path(__file__).parent
 W, H = 1280, 720

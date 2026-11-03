@@ -7,6 +7,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from claimcheck_core import meta_api as api, vision
 
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 HERE = Path(__file__).parent
 OUT = HERE / "images"
 STYLE = "Realistic amateur smartphone photo, natural indoor light, plain home table, sharp focus, no watermark, no brand logos. "

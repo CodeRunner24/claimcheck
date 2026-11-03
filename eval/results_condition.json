@@ -5,7 +5,7 @@
   "clean": 7,
   "clean_wrongly_flagged": 0,
   "skipped": 0,
-  "usd_total": 0.095
+  "usd_total": 0.103
  },
  "rows": [
   {
@@ -14,90 +14,89 @@
    "flags": [
     "large torn hole on center chest"
    ],
-   "usd": 0.0094216
+   "usd": 0.00962635
   },
   {
    "name": "tshirt_stain",
    "damaged": true,
    "flags": [
-    "large brown stain on front center"
+    "large brown stain on the front center"
    ],
-   "usd": 0.006885550000000001
+   "usd": 0.009786250000000002
   },
   {
    "name": "mug_chip",
    "damaged": true,
    "flags": [
-    "large chipped rim next to handle"
+    "large chip on top rim near handle"
    ],
-   "usd": 0.008914100000000001
+   "usd": 0.009499750000000001
   },
   {
    "name": "shoe_tear",
    "damaged": true,
    "flags": [
-    "large torn open side on the shoe exposing interior"
+    "large tear on the side of the shoe"
    ],
-   "usd": 0.009394350000000001
+   "usd": 0.009814250000000002
   },
   {
    "name": "bag_rip",
    "damaged": true,
    "flags": [
-    "large torn hole on front pocket",
-    "dark dirt stains on blue fabric"
+    "large torn hole on front pocket"
    ],
-   "usd": 0.013438750000000001
+   "usd": 0.01102875
   },
   {
    "name": "jacket_stain",
    "damaged": true,
    "flags": [
-    "large dark stain on right sleeve and chest"
+    "large dark stain on the right sleeve and chest"
    ],
-   "usd": 0.006481800000000001
+   "usd": 0.009894100000000001
   },
   {
    "name": "p152",
    "damaged": false,
    "flags": [],
-   "usd": 0.00885235
+   "usd": 0.0063796
   },
   {
    "name": "p154",
    "damaged": false,
    "flags": [],
-   "usd": 0.00535835
+   "usd": 0.0054696
   },
   {
    "name": "p143",
    "damaged": false,
    "flags": [],
-   "usd": 0.00613835
+   "usd": 0.0062071
   },
   {
    "name": "p146",
    "damaged": false,
    "flags": [],
-   "usd": 0.0058986
+   "usd": 0.005436100000000001
   },
   {
    "name": "p081",
    "damaged": false,
    "flags": [],
-   "usd": 0.0042809
+   "usd": 0.007281350000000001
   },
   {
    "name": "p176",
    "damaged": false,
    "flags": [],
-   "usd": 0.005895600000000001
+   "usd": 0.0061811
   },
   {
    "name": "p139",
    "damaged": false,
    "flags": [],
-   "usd": 0.0038156
+   "usd": 0.0060261
   }
  ]
 }

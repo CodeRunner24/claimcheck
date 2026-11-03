@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClaimCheck</title>
+<meta name="description" content="Film it. Say it. Sell what's true. A replay of one real run of ClaimCheck on Meta's models.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23ffdd00'/><path d='M3 8.5l3 3 7-7' stroke='%23111' stroke-width='2.4' fill='none'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<link href="claimcheck.css" rel="stylesheet">
+<style>
+.replay-note { background: var(--black); color: var(--yellow); font-size: 14px; font-weight: 700; padding: 10px clamp(18px, 3vw, 44px); line-height: 1.35; }
+.replay-note a { color: inherit; }
+.poster.short { min-height: 78vh; }
+.how { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: clamp(16px, 2.4vw, 32px); margin-bottom: clamp(28px, 4vw, 56px); }
+.how b { display: block; font-size: clamp(22px, 2.4vw, 32px); line-height: 1.02; font-weight: 900; font-stretch: 80%; margin-bottom: 8px; }
+.how p { margin: 0; font-size: 16px; line-height: 1.38; color: #3c3c38; }
+.ask-picked { flex: 1 1 320px; min-width: 0; min-height: 58px; box-sizing: border-box; background: var(--white); color: var(--black); padding: 14px 18px; font: 700 clamp(20px, 2.2vw, 28px)/1.2 var(--type); }
+.ask-picked:empty::before { content: "Pick a question below"; color: #9c9a93; }
+.chip[aria-pressed="true"] { background: var(--yellow); color: var(--black); box-shadow: none; }
+.answer[hidden] { display: none; }
+.foot { display: flex; gap: 22px; flex-wrap: wrap; font-size: 16px; font-weight: 700; margin-top: 26px; }
+.foot a { color: var(--black); }
+</style>
+</head>
+<body>
+<div class="cc">
+<div class="replay-note">This page replays one real run with its recorded answers, so looking at it costs nothing and needs no key. The clip and its seller are AI-generated and scripted. <a href="https://github.com/CodeRunner24/claimcheck">Run the live app from the code</a> to film your own product and ask your own questions.</div>
+<header class="poster short">
+  <h1>Film it. Say it. Sell what's true.</h1>
+  <div class="promise" aria-hidden="true"><s>100% cotton</s><b>60% cotton</b></div>
+  <div class="poster-foot"><p>Point a camera at what you're selling and talk about it. Your listing writes itself, anything the camera proves wrong never makes it in, and buyers can question the footage for themselves.</p></div>
+</header>
+<main class="page">
+<div class="page-in">
+  <div class="how">
+    <div><b>The seller films and talks.</b><p>Muse Voice hears each sentence. Muse Spark turns it into facts a camera could check.</p></div>
+    <div><b>The camera checks.</b><p>SAM 3.1 hunts for the evidence on every frame and coaches the shot. Plain Python rules decide what's true.</p></div>
+    <div><b>The listing writes itself.</b><p>Only what was established goes in. Damage nobody mentioned gets flagged.</p></div>
+    <div><b>Buyers ask the video.</b><p>Any question becomes a SAM 3.1 search through the footage, answered with the moment that shows it.</p></div>
+  </div>
+  <div class="product">
+    <div>{{HERO}}{{REEL}}</div>
+    <div>
+      <div class="caught"><h2>{{CAUGHT_TITLE}}</h2><ul>{{CAUGHT}}</ul></div>
+      <h1>{{TITLE}}</h1>
+      <p class="desc" style="border:0;min-height:0">{{DESCRIPTION}}</p>
+      {{NOTICED}}
+      <div class="facts">{{FACTS}}</div>
+      <p class="small">Nothing is published automatically. A match is what the camera saw, not a certification, and printed labels can be wrong too.</p>
+    </div>
+  </div>
+  <section class="ask" id="ask">
+    <p class="ask-eyebrow">What the buyer gets</p>
+    <h2>Don't trust the seller. Ask the video.</h2>
+    <div class="ask-form"><div class="ask-picked" id="picked" aria-live="polite"></div></div>
+    <div class="chips">{{CHIPS}}</div>
+    <div class="strip" id="strip"><img class="strip-img" src="{{STRIP}}" alt=""><div class="strip-cells" id="cells">{{CELLS}}</div></div>
+    <p class="ask-stage" id="stage">Every second of the seller's {{SECONDS}}-second video, searchable. If it was never filmed, the answer says so.</p>
+    <div id="answers"></div>
+  </section>
+  <details class="machine">
+    <summary>How it knows: {{CALL_COUNT}} live Meta model calls, {{COST}}</summary>
+    {{CALLS}}
+  </details>
+  <div class="foot"><a href="https://github.com/CodeRunner24/claimcheck">The code</a></div>
+</div>
+</main>
+</div>
+<script>
+const ANSWERS = {{ANSWERS}};
+const strip = document.getElementById("strip"), stage = document.getElementById("stage"), picked = document.getElementById("picked");
+const cells = [...document.querySelectorAll("#cells .cell")], chips = [...document.querySelectorAll(".chip")], list = document.getElementById("answers");
+const STAGES = { fact: ["Reading the question", "SAM 3.1 is finding the evidence in the footage", "Cutting the moment"],
+                 look: ["Reading the question", "SAM 3.1 is searching the footage", "Muse Spark is checking what SAM found", "Cutting the moment"],
+                 none: ["Reading the question"] };
+const cards = new Map();
+let busy = false;
+
+function card(a) {
+  const el = document.createElement("article");
+  el.className = "answer " + a.tone;
+  const view = document.createElement("div");
+  view.className = "a-view";
+  if (a.clip) {
+    const v = document.createElement("video");
+    Object.assign(v, { src: a.clip, muted: true, loop: true, autoplay: true, playsInline: true, className: "a-clip" });
+    view.append(v);
+  } else if (a.still) {
+    const i = document.createElement("img");
+    Object.assign(i, { src: a.still, className: "a-clip", alt: "The frame that answers this" });
+    view.append(i);
+  }
+  const text = document.createElement("div");
+  text.className = "a-text";
+  const line = (tag, cls, value) => { const n = document.createElement(tag); n.className = cls; n.textContent = value; text.append(n); };
+  line("p", "a-q", a.question);
+  line("h3", "a-head", a.headline);
+  line("p", "a-said", a.sentence);
+  if (a.at) line("p", "a-at", a.at);
+  if (a.flat) { const f = document.createElement("img"); Object.assign(f, { src: a.flat, className: "a-flat", alt: "The label, flattened" }); text.append(f); }
+  line("small", "a-how", a.how);
+  el.append(view, text);
+  return el;
+}
+
+function paint(hits) { cells.forEach((c, i) => { c.className = "cell " + (hits ? (hits[i] === "1" ? "hit" : "miss") : ""); }); }
+const pause = (ms) => new Promise((r) => setTimeout(r, ms));
+const quiet = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+async function ask(i) {
+  if (busy) return;
+  const a = ANSWERS[i];
+  chips.forEach((c, n) => c.setAttribute("aria-pressed", n === i));
+  picked.textContent = a.question;
+  if (cards.has(i)) {
+    paint(a.cells);
+    const old = cards.get(i);
+    list.prepend(old);
+    old.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    return;
+  }
+  busy = true;
+  chips.forEach((c) => (c.disabled = true));
+  paint(null);
+  strip.classList.add("scanning");
+  const kind = a.tone === "nocamera" ? "none" : a.how.startsWith("Decided") ? "fact" : "look";
+  for (const line of STAGES[kind]) { stage.textContent = line; await pause(quiet ? 150 : 950); }
+  strip.classList.remove("scanning");
+  paint(a.cells);
+  const el = card(a);
+  cards.set(i, el);
+  list.prepend(el);
+  stage.textContent = "Replaying a recorded answer. It " + a.how.split(" · ").filter((p) => p.startsWith("took")).join("") + ".";
+  chips.forEach((c) => (c.disabled = false));
+  busy = false;
+  el.scrollIntoView({ behavior: quiet ? "auto" : "smooth", block: "nearest" });
+}
+chips.forEach((c, i) => c.addEventListener("click", () => ask(i)));
+</script>
+</body>
+</html>

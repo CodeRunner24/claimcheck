@@ -9,6 +9,7 @@ from pathlib import Path
 from . import rules
 
 MAX_EMBED_VIDEO = 14 * 1024 * 1024
+MAX_EMBED_ANSWER = 4 * 1024 * 1024
 LABEL = {rules.VERIFIED: "Verified on camera", rules.CONTRADICTED: "Contradicted", rules.NOT_VISIBLE: "Not settled", "open": "Not checked"}
 COLOR = {rules.VERIFIED: "#0f8a5f", rules.CONTRADICTED: "#d63b3f", rules.NOT_VISIBLE: "#b36b00", "open": "#6b7280"}
 
@@ -22,11 +23,22 @@ def _image(session, ref: str) -> str:
     return "data:image/jpeg;base64," + base64.b64encode(path.read_bytes()).decode() if path.exists() else ""
 
 
+def _answer_view(session, answer: dict) -> str:
+    """The clip that answered a question, if it is small enough to embed; otherwise the still."""
+    path = Path(session.out_dir or ".") / answer["clip"] if answer["clip"] else None
+    if path and path.exists() and path.stat().st_size <= MAX_EMBED_ANSWER:
+        data = base64.b64encode(path.read_bytes()).decode()
+        return f"<video muted loop autoplay playsinline src='data:video/mp4;base64,{data}'></video>"
+    picture = _image(session, answer["still"])
+    return f'<img alt="" src="{picture}">' if picture else "<span>Not filmed</span>"
+
+
 def _clock(seconds: float) -> str:
     return f"{int(seconds // 60):02d}:{seconds % 60:04.1f}" if seconds >= 0 else ""
 
 
 def build(session, approved_text: str, reviewer_note: str = "") -> str:
+    """The proof page a seller can keep: every verdict with its evidence, as one self-contained HTML file."""
     e = html.escape
     rows = []
     for c in session.claims:
@@ -55,6 +67,13 @@ def build(session, approved_text: str, reviewer_note: str = "") -> str:
         if path.exists() and path.stat().st_size <= MAX_EMBED_VIDEO:
             reel = ("<h2>The take</h2><video controls playsinline src='data:video/mp4;base64,"
                     + base64.b64encode(path.read_bytes()).decode() + "'></video><p class='small'>Masks tracked by SAM 3.1.</p>")
+    asked = ""
+    if session.answers:
+        rows_asked = "".join(
+            f"<article class='claim'><div class='thumb'>{_answer_view(session, a)}</div><div class='body'><div class='tag'>{e(a['question'])}</div>"
+            f"<h3>{e(a['headline'])}</h3><p>{e(a['sentence'])}</p><p class='mono'>{e(a['how'])}{' · seen at ' + e(a['at']) if a['at'] else ''}</p></div></article>"
+            for a in session.answers)
+        asked = f"<h2>Questions asked of the footage</h2>{rows_asked}"
     calls: dict[str, list[float]] = {}
     for t in session.trace:
         slot = calls.setdefault(t.model, [0, 0.0])
@@ -86,6 +105,7 @@ h2{{margin:40px 0 12px;font-size:20px}} h3{{margin:2px 0 4px;font-size:17px}} p{
 {f'<h2>Listing photo</h2><img class="hero" alt="Product photo" src="{hero}">{hero_note}' if hero else ''}
 <h2>Each claim</h2>{''.join(rows)}
 {reel}
+{asked}
 <h2>What the seller originally said</h2><div class="quote">{e(session.listing)}</div>
 {f'<p class="small">{e(reviewer_note)}</p>' if reviewer_note else ''}
 <h2>How it was made</h2><p class="mono">{usage}<br>total model cost ${session.cost():.3f}</p>

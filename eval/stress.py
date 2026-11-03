@@ -8,6 +8,8 @@ from PIL import Image, ImageEnhance, ImageFilter
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from claimcheck_core import agent, rules
 
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 HERE = Path(__file__).parent
 
 
@@ -28,7 +30,7 @@ def run(args):
     s = agent.Session("")
     c = agent.Claim("c1", case["text"], "", case["check"], case["claimed"], "care label", "", attempts=1)
     try:
-        _, _, r = agent._inspect_concept(s, "care label", [c], DAMAGE[damage](im))
+        _, _, r = agent.inspect_concept(s, "care label", [c], DAMAGE[damage](im))
         r = r["c1"]
     except Exception as e:
         r = {"verdict": "error", "rule": type(e).__name__, "observed": ""}

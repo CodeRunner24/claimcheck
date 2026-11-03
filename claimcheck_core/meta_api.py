@@ -31,6 +31,7 @@ SAM_VIDEO_FRAME = 0.20 / 1000  # each video request is billed for at least 50 fr
 IMAGE_GEN = 0.01
 VOICE_SECOND = 0.18 / 3600
 VOICE = "muse-voice-transcribe-1.0"
+RETRYABLE = (429, 500, 502, 503, 504)
 
 
 class SpendCapReached(RuntimeError):
@@ -39,6 +40,10 @@ class SpendCapReached(RuntimeError):
 
 class ApiError(RuntimeError):
     pass
+
+
+class _TryAgain(RuntimeError):
+    """The server is busy or failing for now, so the same request may well work in a moment."""
 
 
 @dataclass
@@ -103,6 +108,7 @@ def _running(trace, model: str):
 
 
 def data_url(jpeg: bytes) -> str:
+    """A JPEG as the data URL the API accepts for an image."""
     return "data:image/jpeg;base64," + base64.b64encode(jpeg).decode()
 
 
@@ -129,7 +135,7 @@ def _post(path: str, body: dict, timeout: float = 120) -> dict:
             last = str(e)
             time.sleep(1.5 * (attempt + 1))
             continue
-        if r.status_code in (429, 500, 502, 503, 504):
+        if r.status_code in RETRYABLE:
             last = f"HTTP {r.status_code}: {r.text[:200]}"
             time.sleep(2 * (attempt + 1))
             continue
@@ -167,6 +173,7 @@ def parse_json(text: str):
 
 def spark_json(prompt: str, images: list[bytes] | None = None, purpose: str = "spark",
                effort: str = "low", trace: list | None = None):
+    """Ask Muse Spark for JSON about a prompt and some images. A reply that isn't JSON gets one more try."""
     content = [{"type": "input_text", "text": prompt}]
     content += [{"type": "input_image", "image_url": data_url(i)} for i in images or []]
     body = {
@@ -192,6 +199,7 @@ def spark_json(prompt: str, images: list[bytes] | None = None, purpose: str = "s
 
 
 def sam_raw(concept: str, jpeg: bytes, trace: list | None = None) -> str:
+    """SAM 3.1 on one image. Returns its raw text, which vision.parse_sam turns into instances."""
     body = {
         "model": SAM,
         "store": False,
@@ -211,6 +219,7 @@ def sam_raw(concept: str, jpeg: bytes, trace: list | None = None) -> str:
 
 
 def generate_image(prompt: str, trace: list | None = None, purpose: str = "shot guide") -> bytes:
+    """A generated image from Muse Image, as bytes."""
     t0 = time.time()
     with _running(trace, IMAGE):
         resp = _post("/images/generations", {"model": IMAGE, "prompt": prompt, "n": 1}, timeout=180)
@@ -220,8 +229,34 @@ def generate_image(prompt: str, trace: list | None = None, purpose: str = "shot 
     return base64.b64decode(resp["data"][0]["b64_json"])
 
 
+def _stream_video(body: dict, on_frame) -> tuple[list[str], int]:
+    """One streaming SAM 3.1 video request. Returns its output lines and the frames it was billed for."""
+    lines: list[str] = []
+    frames = 0
+    with httpx.stream("POST", f"{BASE_URL}/responses", headers={"Authorization": f"Bearer {_key()}"}, json=body, timeout=300) as r:
+        if r.status_code in RETRYABLE:
+            raise _TryAgain(f"HTTP {r.status_code}: {r.read()[:200]!r}")
+        if r.status_code >= 400:
+            raise ApiError(f"HTTP {r.status_code}: {r.read()[:300]!r}")
+        for raw in r.iter_lines():
+            if not raw.startswith("data:"):
+                continue
+            try:
+                event = json.loads(raw[5:].strip())
+            except json.JSONDecodeError:
+                continue
+            if event.get("type") == "response.output_text.delta":
+                lines.append(event["delta"])
+                if on_frame:
+                    m = re.match(r"\s*<(\d+)f>", event["delta"])
+                    on_frame(int(m.group(1)) if m else len(lines))
+            elif event.get("type") == "response.completed":
+                frames = (event["response"].get("usage") or {}).get("video_frames_processed", 0)
+    return lines, frames
+
+
 def sam_video(concept: str, mp4: bytes, trace: list | None = None, on_frame=None) -> list[str]:
-    """Track a concept through a clip. Streams one line per frame; on_frame(index) reports progress."""
+    """Track a concept through a clip. SAM streams one line for each frame it found the concept on; on_frame(index) reports progress."""
     LEDGER_INSTANCE.check()
     body = {
         "model": SAM,
@@ -233,28 +268,18 @@ def sam_video(concept: str, mp4: bytes, trace: list | None = None, on_frame=None
             {"type": "input_video", "video_url": "data:video/mp4;base64," + base64.b64encode(mp4).decode()},
         ]}],
     }
-    lines: list[str] = []
-    frames = 0
     t0 = time.time()
+    last = None
     with _running(trace, SAM):
-        with httpx.stream("POST", f"{BASE_URL}/responses", headers={"Authorization": f"Bearer {_key()}"},
-                          json=body, timeout=300) as r:
-            if r.status_code >= 400:
-                raise ApiError(f"HTTP {r.status_code}: {r.read()[:300]!r}")
-            for raw in r.iter_lines():
-                if not raw.startswith("data:"):
-                    continue
-                try:
-                    event = json.loads(raw[5:].strip())
-                except json.JSONDecodeError:
-                    continue
-                if event.get("type") == "response.output_text.delta":
-                    lines.append(event["delta"])
-                    if on_frame:
-                        m = re.match(r"\s*<(\d+)f>", event["delta"])
-                        on_frame(int(m.group(1)) if m else len(lines))
-                elif event.get("type") == "response.completed":
-                    frames = (event["response"].get("usage") or {}).get("video_frames_processed", 0)
+        for attempt in range(3):
+            try:
+                lines, frames = _stream_video(body, on_frame)
+                break
+            except (_TryAgain, httpx.HTTPError) as e:
+                last = str(e)
+                time.sleep(2 * (attempt + 1))
+        else:
+            raise ApiError(f"Meta API unavailable after retries: {last}")
     usd = max(frames, 50) * SAM_VIDEO_FRAME
     LEDGER_INSTANCE.add(usd)
     if trace is not None:

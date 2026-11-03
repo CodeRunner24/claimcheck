@@ -44,6 +44,7 @@ def _canonical_text(text) -> str:
 
 
 def normalize(text: str) -> str:
+    """Lower case with accents and punctuation removed, so label text and speech compare equal."""
     text = str(text).replace("ı", "i").replace("İ", "i").casefold()
     text = "".join(c for c in unicodedata.normalize("NFKD", text) if not unicodedata.combining(c))
     return re.sub(r"\s+", " ", re.sub(r"[^\w%.°/ ]+", " ", text)).strip()
@@ -74,6 +75,7 @@ def parse_composition(text: str) -> dict[str, float]:
 
 
 def parse_count(value) -> int | None:
+    """'set of 2', 'two' or 2 as an integer. None if there is no number in it."""
     if isinstance(value, bool):
         return None
     if isinstance(value, (int, float)):
@@ -89,6 +91,7 @@ def parse_count(value) -> int | None:
 
 
 def color_of(text: str) -> str | None:
+    """The basic color named in some text, in English or Turkish, or None."""
     words = normalize(text).split()
     for color, names in COLORS.items():
         if any(name in words for name in names):
@@ -193,3 +196,22 @@ def decide(check: str, claimed, observation: dict, sam_count: int | None = None,
     if match is False:
         return _result(CONTRADICTED, "model_judgement", observation.get("reason") or "Model judged a mismatch.")
     return _result(NOT_VISIBLE, "model_unsure", observation.get("reason") or "Model was unsure.")
+
+
+def overall(verdicts: list[str]) -> str:
+    """One verdict for several claims: any contradiction decides it, and anything unseen keeps it from being verified."""
+    if CONTRADICTED in verdicts:
+        return CONTRADICTED
+    return NOT_VISIBLE if NOT_VISIBLE in verdicts else VERIFIED
+
+
+def leaked_values(claims, text: str) -> list[str]:
+    """Disproved values that still appear in generated text. Checked in code, because this is the one thing it must not do."""
+    plain = normalize(text)
+    leaked = []
+    for c in claims:
+        if c.verdict == CONTRADICTED and c.claimed:
+            value = normalize(c.claimed)
+            if value and not value.isdigit() and value in plain and value not in normalize(c.observed):
+                leaked.append(c.claimed)
+    return leaked

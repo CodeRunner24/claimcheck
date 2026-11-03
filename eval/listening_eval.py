@@ -13,6 +13,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from claimcheck_core import agent
 
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 HERE = Path(__file__).parent
 CASES = [
     ("This is a set of two black t-shirts.", {"quantity": "count", "color": "color"}),

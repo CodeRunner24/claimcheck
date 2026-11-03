@@ -6,10 +6,14 @@ from concurrent.futures import ThreadPoolExecutor
 
 from . import meta_api as api
 from . import rules, take as takes, vision
+from .asking import filmstrip, suggest_questions
 from .listening import discover, hear
-from .perception import _apply, _consider_hero, _inspect_concept, store
+from .perception import consider_hero, inspect_concept, record_verdicts, store
 from .prompts import BACKDROP_PROMPTS, CONDITION_PROMPT, CORRECT_PROMPT, WRITE_PROMPT
 from .session import Claim, Session, pretty
+
+WHOLE_CLIP_SECONDS = 5.0
+HERO_SEARCH_FRAMES = 80
 
 
 def analyze_take(session: Session, raw_video: bytes) -> dict:
@@ -31,34 +35,37 @@ def analyze_take(session: Session, raw_video: bytes) -> dict:
     session.shots += 1
     for concept, group in groups.items():
         frames = tracks.get(concept, {})
-        counted = [c for c in group if c.check not in ("composition", "text", "read")]
-        read = [c for c in group if c.check in ("composition", "text", "read")]
+        counted = [c for c in group if not c.reads_print]
+        read = [c for c in group if c.reads_print]
         if counted:
             n, at = takes.most_at_once(frames)
             index = at if at is not None else (min(frames) if frames else None)
             if index is None or index >= len(take.frames):
-                results = {c.id: {"verdict": rules.NOT_VISIBLE, "rule": "sam_no_match", "observed": "",
-                                  "detail": f'SAM did not find "{concept}" in the take.'} for c in counted}
-                _apply(session, concept, counted, [], results, take.frames[0])
+                record_verdicts(session, concept, counted, [], _not_found(concept, counted), take.frames[0])
             else:
-                _, inst, results = _inspect_concept(session, concept, counted, take.frames[index], frames.get(index, []),
-                                                    first_look=not second_look)
-                _apply(session, concept, counted, inst, results, take.frames[index], index / take.fps)
+                # A whole clip is many looks: if the rest never came into view in it, that is not a first impression.
+                whole_clip = len(take.frames) / take.fps >= WHOLE_CLIP_SECONDS
+                _, inst, results = inspect_concept(session, concept, counted, take.frames[index], frames.get(index, []),
+                                                    first_look=not (second_look or whole_clip))
+                record_verdicts(session, concept, counted, inst, results, take.frames[index], index / take.fps)
         if read:
             found = takes.best_read_frame(frames, take)
             if found is None:
-                results = {c.id: {"verdict": rules.NOT_VISIBLE, "rule": "sam_no_match", "observed": "",
-                                  "detail": f'SAM did not find "{concept}" in the take.'} for c in read}
-                _apply(session, concept, read, [], results, take.frames[0])
+                record_verdicts(session, concept, read, [], _not_found(concept, read), take.frames[0])
             else:
                 index, _ = found
-                _, inst, results = _inspect_concept(session, concept, read, take.frames[index], frames.get(index, []),
+                _, inst, results = inspect_concept(session, concept, read, take.frames[index], frames.get(index, []),
                                                     first_look=not second_look)
-                _apply(session, concept, read, inst, results, take.frames[index], index / take.fps)
+                record_verdicts(session, concept, read, inst, results, take.frames[index], index / take.fps)
     for c in session.claims:  # no live coaching on this path, so the agent's own wishes don't hold anything up
         if c.source == "plan" and c.verdict != rules.VERIFIED:
             c.skipped = True
     return {"tracks": tracks, "take": take}
+
+
+def _not_found(concept: str, claims: list[Claim]) -> dict[str, dict]:
+    return {c.id: {"verdict": rules.NOT_VISIBLE, "rule": "sam_no_match", "observed": "",
+                   "detail": f'SAM did not find "{concept}" in the take.'} for c in claims}
 
 
 def _track_all(session: Session, take: takes.Take, concepts: list[str]) -> dict[str, dict]:
@@ -74,18 +81,6 @@ def _track_all(session: Session, take: takes.Take, concepts: list[str]) -> dict[
         return {}
     with ThreadPoolExecutor(max_workers=3) as pool:
         return dict(pool.map(run, concepts))
-
-
-def _leaks(session: Session, text: str) -> list[str]:
-    """Disproved values that still appear in a draft. Checked in code, because this is the one thing it must not do."""
-    plain = rules.normalize(text)
-    leaked = []
-    for c in session.claims:
-        if c.verdict == rules.CONTRADICTED and c.claimed:
-            value = rules.normalize(c.claimed)
-            if value and not value.isdigit() and value in plain and value not in rules.normalize(c.observed):
-                leaked.append(c.claimed)
-    return leaked
 
 
 def correct_listing(session: Session) -> str:
@@ -110,11 +105,12 @@ def correct_listing(session: Session) -> str:
         prompt = CORRECT_PROMPT.format(listing=session.listing, results=results)
     data = api.spark_json(prompt, purpose="write the listing", trace=session.trace, effort="low")
     text = str(data.get("listing", session.listing))
-    if _leaks(session, text):
-        data = api.spark_json(prompt + f"\n\nYour last draft wrongly repeated: {_leaks(session, text)}. Remove those.",
+    repeated = rules.leaked_values(session.claims, text)
+    if repeated:
+        data = api.spark_json(prompt + f"\n\nYour last draft wrongly repeated: {repeated}. Remove those.",
                               purpose="rewrite the listing", trace=session.trace, effort="low")
         text = str(data.get("listing", text))
-    leaked = _leaks(session, text)
+    leaked = rules.leaked_values(session.claims, text)
     session.leak_warning = f"Check this before publishing: the draft still mentions {', '.join(leaked)}." if leaked else ""
     session.title, session.corrected = str(data.get("title", "")), text
     return session.corrected
@@ -128,7 +124,7 @@ def make_hero(session: Session) -> None:
     if session.hero_source is None:
         return
     jpeg, instances, _ = session.hero_source
-    color = vision.swatch(jpeg, max(instances, key=lambda i: (i.box[2] - i.box[0]) * (i.box[3] - i.box[1])))
+    color = vision.swatch(jpeg, vision.largest(instances))
     dark_product = bool(color) and (int(color[1:3], 16) + int(color[3:5], 16) + int(color[5:7], 16)) / 3 < 110
     tone = "light" if dark_product else "dark"
     if tone not in BACKDROPS:
@@ -142,7 +138,7 @@ def notice_condition(session: Session) -> None:
     """Honesty runs both ways: flag damage the seller didn't mention, located with SAM, for them to confirm or dismiss."""
     if session.hero_source is not None:
         jpeg, instances, _ = session.hero_source
-        best = max(instances, key=lambda i: (i.box[2] - i.box[0]) * (i.box[3] - i.box[1]))
+        best = vision.largest(instances)
         images = [jpeg, vision.crop(jpeg, best.box)]
     elif session.first_look:
         jpeg, images = session.first_look, [session.first_look]
@@ -174,6 +170,8 @@ def finish(session: Session, raw_video: bytes | None) -> None:
         if raw_video and take is None:
             take = takes.load(raw_video)
         if take is not None:
+            session.take = take  # kept so buyers can question the footage later, even if the reel fails
+            filmstrip(session)
             _cut_reel(session, take)
         session.progress["reel"] = 1.0
 
@@ -191,11 +189,12 @@ def finish(session: Session, raw_video: bytes | None) -> None:
             return [str(f.exception())[:200] for f in [pool.submit(step) for step in steps] if f.exception()]
 
     # The draft has to know about any damage, and the photo wants the reel's best view of the product.
-    errors = run(reel, lambda: notice_condition(session)) + run(draft, photo)
+    errors = run(reel, lambda: notice_condition(session)) + run(draft, photo, lambda: suggest_questions(session))
     session.progress.update({"listing": 1.0, "hero": 1.0, "reel": 1.0})
     if errors:
         session.progress["errors"] = errors
     session.progress.pop("take", None)
+    session.filming_cost = session.cost()
 
 
 def _cross_check_counts(session: Session, take: takes.Take) -> None:
@@ -231,16 +230,20 @@ def _cut_reel(session: Session, take: takes.Take) -> None:
         checked.result()
     layers = []
     for concept in concepts:
-        statuses = [c.verdict for c in session.claims if c.sam_concept == concept]
-        status = rules.CONTRADICTED if rules.CONTRADICTED in statuses else (
-            rules.NOT_VISIBLE if rules.NOT_VISIBLE in statuses else rules.VERIFIED)
+        status = rules.overall([c.verdict for c in session.claims if c.sam_concept == concept])
         name = next(c.evidence_name or concept for c in session.claims if c.sam_concept == concept)
         layers.append({"frames": tracks.get(concept, {}), "status": status, "label": name})
     product = session.product_concept
     if product and product in tracks:  # the take may hold a better complete view of the product than any fired frame
-        for index, instances in sorted(tracks[product].items(), key=lambda kv: -sum(i.short_side for i in kv[1]))[:30]:
-            if index < len(clip.frames):
-                _consider_hero(session, clip.frames[index], instances, product)
+        view = takes.steadiest_view(tracks[product], clip)
+        if view:
+            consider_hero(session, clip.frames[view[0]], view[1], product)
+    if product and session.hero_source is None:  # the verdict moments never showed all of it: look through the rest of the take
+        step = max(1, len(take.frames) // HERO_SEARCH_FRAMES)
+        wide = takes.subset(take, list(range(0, len(take.frames), step)), max(1, take.fps // step))
+        view = takes.steadiest_view(_track_all(session, wide, [product])[product], wide)
+        if view:
+            consider_hero(session, wide.frames[view[0]], view[1], product)
     if session.out_dir is None:
         return
     session.out_dir.mkdir(parents=True, exist_ok=True)

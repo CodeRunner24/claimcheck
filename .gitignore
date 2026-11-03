@@ -20,3 +20,4 @@ uploaded_files/
 .pytest_cache/
 eval/images_real/
 eval/images_condition/
+eval/ask_out/

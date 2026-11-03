@@ -7,6 +7,7 @@ from .state import State
 
 
 def start_view() -> rx.Component:
+    """The poster: start filming, or upload a video, paste a listing or watch the sample."""
     return rx.el.main(
         rx.el.h1("Film it. Say it. Sell what's true."),
         rx.el.div(rx.el.s("100% cotton"), rx.el.b("60% cotton"), class_name="promise", aria_hidden="true"),
@@ -45,6 +46,7 @@ def start_view() -> rx.Component:
 
 
 def seg(s) -> rx.Component:
+    """One piece of the transcript, marked with its verdict and any correction."""
     return rx.fragment(
         rx.el.span(s["text"], class_name=f"seg {s['verdict']}"),
         rx.cond(s["fix"] != "", rx.el.span(s["fix"], class_name="fix")),
@@ -52,6 +54,7 @@ def seg(s) -> rx.Component:
 
 
 def live_view() -> rx.Component:
+    """The viewfinder: the camera, the masks, one line of direction and the words as they are heard."""
     return rx.el.main(
         rx.el.div(
             rx.el.video(id="cc-video", auto_play=True, muted=True, plays_inline=True),
@@ -87,7 +90,7 @@ def live_view() -> rx.Component:
                 class_name="tag", id="cc-tag",
             ),
             rx.el.button("Done", on_click=State.finish_take, class_name="done-btn", id="finish"),
-            rx.cond(State.source == "sample", rx.el.div("Sample: AI-generated clip, scripted seller", class_name="sample-note")),
+            rx.cond(State.source == "sample", rx.el.div("Sample clip", class_name="sample-note")),
             rx.el.div(State.ticker, class_name="ticker", id="cc-ticker"),
             class_name="stage", style={"--ratio": State.ratio},
         ),
@@ -96,6 +99,7 @@ def live_view() -> rx.Component:
 
 
 def cutting_view() -> rx.Component:
+    """The short wait after filming."""
     return rx.el.main(
         rx.el.h2("Writing your listing"),
         rx.el.div(rx.el.i(style={"width": f"{State.progress}%"}), class_name="bar-track"),
@@ -106,6 +110,7 @@ def cutting_view() -> rx.Component:
 
 
 def proof_button(c) -> rx.Component:
+    """A fact's evidence thumbnail, opening the full frame in a dialog."""
     return rx.dialog.root(
         rx.dialog.trigger(
             rx.el.button(rx.cond(c["thumb"] != "", rx.el.img(src=rx.get_upload_url(c["thumb"]), alt="")), class_name="proof", aria_label="See the evidence", disabled=c["thumb"] == "")
@@ -123,6 +128,7 @@ def proof_button(c) -> rx.Component:
 
 
 def fact_row(c) -> rx.Component:
+    """One row of the fact table."""
     return rx.el.div(
         rx.el.span(c["attribute"]),
         rx.el.b(c["value"], rx.cond(c["verdict"] == "contradicted", rx.el.em("you said " + c["claimed"], class_name="fixed-tag"))),
@@ -131,7 +137,54 @@ def fact_row(c) -> rx.Component:
     )
 
 
+def answer_card(a) -> rx.Component:
+    """One answered question: the moment that answers it, and how the answer was reached."""
+    return rx.el.article(
+        rx.el.div(
+            rx.cond(a["clip"] != "", rx.el.video(src=rx.get_upload_url(a["clip"]), auto_play=True, muted=True, loop=True, plays_inline=True, class_name="a-clip")),
+            rx.cond(a["still"] != "", rx.el.img(src=rx.get_upload_url(a["still"]), class_name="a-clip", alt="The frame that answers this")),
+            class_name="a-view",
+        ),
+        rx.el.div(
+            rx.el.p(a["question"], class_name="a-q"),
+            rx.el.h3(a["headline"], class_name="a-head"),
+            rx.el.p(a["sentence"], class_name="a-said"),
+            rx.cond(a["at"] != "", rx.el.p(a["at"], class_name="a-at")),
+            rx.cond(a["flat"] != "", rx.el.img(src=rx.get_upload_url(a["flat"]), class_name="a-flat", alt="The label, flattened")),
+            rx.el.small(a["how"], class_name="a-how"),
+            class_name="a-text",
+        ),
+        class_name=f"answer {a['tone']}",
+    )
+
+
+def ask_band() -> rx.Component:
+    """The footage stays useful after the listing is written: a buyer can question it directly."""
+    return rx.el.section(
+        rx.el.p("What your buyer gets", class_name="ask-eyebrow"),
+        rx.el.h2("Don't trust the seller. Ask the video."),
+        rx.el.form(
+            rx.el.input(value=State.question, on_change=State.set_question, placeholder="Does it have a pocket?", aria_label="Your question",
+                        max_length=200, disabled=State.asking, id="cc-question", name="question", auto_complete="off"),
+            rx.el.button("Ask", type="submit", disabled=State.asking, class_name="ask-go", id="cc-ask"),
+            rx.el.button(rx.cond(State.listening, "Listening. Tap to stop", "Say it"), type="button", on_click=State.toggle_voice, disabled=State.asking,
+                         class_name=rx.cond(State.listening, "ask-say on", "ask-say"), id="cc-say"),
+            on_submit=State.ask_typed, class_name="ask-form",
+        ),
+        rx.el.div(rx.foreach(State.suggestions, lambda q: rx.el.button(q, on_click=State.ask(q), disabled=State.asking, type="button", class_name="chip")), class_name="chips"),
+        rx.el.div(
+            rx.el.img(src=rx.get_upload_url(State.strip_url), alt="", class_name="strip-img"),
+            rx.el.div(rx.foreach(State.strip, lambda s: rx.el.i(class_name=f"cell {s}")), class_name="strip-cells"),
+            class_name=rx.cond(State.asking, "strip scanning", "strip"), id="cc-strip",
+        ),
+        rx.el.p(rx.cond(State.asking, State.ask_stage, "Every second of the seller's video, searchable. If it was never filmed, the answer says so."), class_name="ask-stage", id="cc-stage"),
+        rx.el.div(rx.foreach(State.answers, answer_card), id="cc-answers"),
+        class_name="ask", id="cc-ask-band",
+    )
+
+
 def reveal_view() -> rx.Component:
+    """The finished product page: photo, listing, facts and reel, then the buyer's questions."""
     return rx.el.main(
         rx.el.div(
             rx.el.div(rx.el.strong("ClaimCheck"), rx.el.button("New listing", on_click=State.reset_all, class_name="quiet"), class_name="top"),
@@ -188,6 +241,7 @@ def reveal_view() -> rx.Component:
                 ),
                 class_name="product",
             ),
+            rx.cond(State.can_ask, ask_band()),
             rx.el.details(
                 rx.el.summary("How it knows: ", State.calls.length(), " live Meta model calls, ", State.cost),
                 rx.foreach(State.calls, lambda t: rx.el.div(rx.el.span(t["model"]), rx.el.span(t["purpose"]), rx.el.span(t["ms"]), rx.el.span(t["usd"]))),
@@ -200,6 +254,7 @@ def reveal_view() -> rx.Component:
 
 
 def index() -> rx.Component:
+    """The page: whichever view matches the current phase."""
     return rx.el.div(
         rx.script(src="/director.js"),
         rx.cond(State.error != "", rx.el.div(State.error, class_name="alert", role="alert")),

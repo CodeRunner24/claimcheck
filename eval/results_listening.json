@@ -2,12 +2,12 @@
  "summary": {
   "sentences": 20,
   "facts_expected": 22,
-  "facts_found": 21,
-  "extra_facts": 2,
-  "right_check": 21,
+  "facts_found": 22,
+  "extra_facts": 1,
+  "right_check": 22,
   "sales_talk_sentences": 6,
   "sales_talk_correctly_ignored": 6,
-  "usd_total": 0.077
+  "usd_total": 0.079
  },
  "rows": [
   {
@@ -20,7 +20,7 @@
     "quantity": "count",
     "color": "color"
    },
-   "usd": 0.00464975
+   "usd": 0.00415625
   },
   {
    "said": "It's a hundred percent cotton and made in Portugal.",
@@ -32,7 +32,7 @@
     "material": "composition",
     "origin": "text"
    },
-   "usd": 0.00472625
+   "usd": 0.00374825
   },
   {
    "said": "So this one is sixty percent wool, forty percent acrylic.",
@@ -42,7 +42,7 @@
    "got": {
     "material": "composition"
    },
-   "usd": 0.0031605
+   "usd": 0.00577375
   },
   {
    "said": "You get three mugs in the box, all white.",
@@ -54,7 +54,7 @@
     "quantity": "count",
     "color": "color"
    },
-   "usd": 0.004376
+   "usd": 0.004265
   },
   {
    "said": "It's size medium, it says so on the tag.",
@@ -64,7 +64,7 @@
    "got": {
     "size": "text"
    },
-   "usd": 0.003478
+   "usd": 0.00281875
   },
   {
    "said": "The bag is about thirty eight centimeters long.",
@@ -74,7 +74,7 @@
    "got": {
     "dimension": "measure"
    },
-   "usd": 0.0032842500000000003
+   "usd": 0.003815
   },
   {
    "said": "It has a full front zip and a hood.",
@@ -84,7 +84,7 @@
    "got": {
     "feature": "visual"
    },
-   "usd": 0.00796475
+   "usd": 0.00436875
   },
   {
    "said": "Made in Italy, genuine leather.",
@@ -96,7 +96,7 @@
     "origin": "text",
     "material": "composition"
    },
-   "usd": 0.00544925
+   "usd": 0.006443249999999999
   },
   {
    "said": "This jacket is navy blue with two side pockets.",
@@ -106,9 +106,9 @@
    },
    "got": {
     "color": "color",
-    "quantity": "count"
+    "feature": "visual"
    },
-   "usd": 0.00435225
+   "usd": 0.0071015
   },
   {
    "said": "The brand is Levi's, model 505.",
@@ -120,7 +120,7 @@
     "brand": "text",
     "model": "text"
    },
-   "usd": 0.00545725
+   "usd": 0.0054185
   },
   {
    "said": "A pair of red sneakers.",
@@ -132,7 +132,7 @@
     "quantity": "count",
     "color": "color"
    },
-   "usd": 0.00375225
+   "usd": 0.006221
   },
   {
    "said": "Pure linen, made in Lithuania.",
@@ -144,7 +144,7 @@
     "material": "composition",
     "origin": "text"
    },
-   "usd": 0.0048755
+   "usd": 0.0037530000000000003
   },
   {
    "said": "It's green. Dark green really.",
@@ -154,7 +154,7 @@
    "got": {
     "color": "color"
    },
-   "usd": 0.00487125
+   "usd": 0.004866499999999999
   },
   {
    "said": "Four piece set, stainless steel.",
@@ -165,43 +165,43 @@
     "quantity": "count",
     "material": "visual"
    },
-   "usd": 0.00730225
+   "usd": 0.00611175
   },
   {
    "said": "This is our best seller and everyone loves it.",
    "expected": {},
    "got": {},
-   "usd": 0.0016194999999999998
+   "usd": 0.00169125
   },
   {
    "said": "Super comfortable, premium quality, fast shipping.",
    "expected": {},
    "got": {},
-   "usd": 0.00160975
+   "usd": 0.001503
   },
   {
    "said": "Okay um let me just get this in the light.",
    "expected": {},
    "got": {},
-   "usd": 0.0014635
+   "usd": 0.0010635
   },
   {
    "said": "Hi everyone, thanks for watching.",
    "expected": {},
    "got": {},
-   "usd": 0.00145425
+   "usd": 0.0019467500000000001
   },
   {
    "said": "You're going to love how soft this feels.",
    "expected": {},
    "got": {},
-   "usd": 0.0017925000000000003
+   "usd": 0.0016645
   },
   {
    "said": "It's a great gift for your mom.",
    "expected": {},
    "got": {},
-   "usd": 0.001855
+   "usd": 0.00188425
   }
  ]
 }
