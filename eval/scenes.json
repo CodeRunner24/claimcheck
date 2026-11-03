@@ -1,0 +1,285 @@
+[
+ {
+  "id": "label00",
+  "prompt": "Extreme close-up of a white sewn-in garment care label held by fingers. The label is fully legible with crisp black printed text reading exactly: 60% COTTON / 40% POLYESTER / MADE IN BANGLADESH",
+  "kind": "label",
+  "composition": "60% cotton 40% polyester",
+  "origin": "Bangladesh"
+ },
+ {
+  "id": "label01",
+  "prompt": "Extreme close-up of a white sewn-in garment care label held by fingers. The label is fully legible with crisp black printed text reading exactly: 100% COTTON / MADE IN TURKEY",
+  "kind": "label",
+  "composition": "100% cotton",
+  "origin": "Turkey"
+ },
+ {
+  "id": "label02",
+  "prompt": "Extreme close-up of a white sewn-in garment care label held by fingers. The label is fully legible with crisp black printed text reading exactly: 95% COTTON / 5% ELASTANE / MADE IN PORTUGAL",
+  "kind": "label",
+  "composition": "95% cotton 5% elastane",
+  "origin": "Portugal"
+ },
+ {
+  "id": "label03",
+  "prompt": "Extreme close-up of a white sewn-in garment care label held by fingers. The label is fully legible with crisp black printed text reading exactly: 80% WOOL / 20% NYLON / MADE IN ITALY",
+  "kind": "label",
+  "composition": "80% wool 20% nylon",
+  "origin": "Italy"
+ },
+ {
+  "id": "label04",
+  "prompt": "Extreme close-up of a white sewn-in garment care label held by fingers. The label is fully legible with crisp black printed text reading exactly: 100% POLYESTER / MADE IN VIETNAM",
+  "kind": "label",
+  "composition": "100% polyester",
+  "origin": "Vietnam"
+ },
+ {
+  "id": "label05",
+  "prompt": "Extreme close-up of a white sewn-in garment care label held by fingers. The label is fully legible with crisp black printed text reading exactly: 100% LINEN / MADE IN INDIA",
+  "kind": "label",
+  "composition": "100% linen",
+  "origin": "India"
+ },
+ {
+  "id": "label06",
+  "prompt": "Extreme close-up of a white sewn-in garment care label held by fingers. The label is fully legible with crisp black printed text reading exactly: 70% VISCOSE / 30% SILK / MADE IN CHINA",
+  "kind": "label",
+  "composition": "70% viscose 30% silk",
+  "origin": "China"
+ },
+ {
+  "id": "label07",
+  "prompt": "Extreme close-up of a white sewn-in garment care label held by fingers. The label is fully legible with crisp black printed text reading exactly: 50% COTTON / 50% POLYESTER / MADE IN EGYPT",
+  "kind": "label",
+  "composition": "50% cotton 50% polyester",
+  "origin": "Egypt"
+ },
+ {
+  "id": "label08",
+  "prompt": "Extreme close-up of a white sewn-in garment care label held by fingers. The label is fully legible with crisp black printed text reading exactly: %100 PAMUK / TÜRKİYE'DE ÜRETİLMİŞTİR",
+  "kind": "label",
+  "composition": "100% cotton",
+  "origin": "Türkiye"
+ },
+ {
+  "id": "label09",
+  "prompt": "Extreme close-up of a white sewn-in garment care label held by fingers. The label is fully legible with crisp black printed text reading exactly: %65 POLYESTER %35 PAMUK / TÜRKİYE'DE ÜRETİLMİŞTİR",
+  "kind": "label",
+  "composition": "65% polyester 35% cotton",
+  "origin": "Türkiye"
+ },
+ {
+  "id": "count00",
+  "prompt": "Exactly 2 identical plain ceramic mugs laid out on a table, clearly separated, none overlapping, all fully in frame.",
+  "kind": "count",
+  "concept": "ceramic mug",
+  "count": 2
+ },
+ {
+  "id": "count01",
+  "prompt": "Exactly 4 identical plain ceramic mugs laid out on a table, clearly separated, none overlapping, all fully in frame.",
+  "kind": "count",
+  "concept": "ceramic mug",
+  "count": 4
+ },
+ {
+  "id": "count02",
+  "prompt": "Exactly 3 identical plain wooden spoons laid out on a table, clearly separated, none overlapping, all fully in frame.",
+  "kind": "count",
+  "concept": "wooden spoon",
+  "count": 3
+ },
+ {
+  "id": "count03",
+  "prompt": "Exactly 5 identical plain wooden spoons laid out on a table, clearly separated, none overlapping, all fully in frame.",
+  "kind": "count",
+  "concept": "wooden spoon",
+  "count": 5
+ },
+ {
+  "id": "count04",
+  "prompt": "Exactly 3 identical plain tennis balls laid out on a table, clearly separated, none overlapping, all fully in frame.",
+  "kind": "count",
+  "concept": "tennis ball",
+  "count": 3
+ },
+ {
+  "id": "count05",
+  "prompt": "Exactly 6 identical plain tennis balls laid out on a table, clearly separated, none overlapping, all fully in frame.",
+  "kind": "count",
+  "concept": "tennis ball",
+  "count": 6
+ },
+ {
+  "id": "count06",
+  "prompt": "Exactly 2 identical plain folded towels laid out on a table, clearly separated, none overlapping, all fully in frame.",
+  "kind": "count",
+  "concept": "folded towel",
+  "count": 2
+ },
+ {
+  "id": "count07",
+  "prompt": "Exactly 3 identical plain folded towels laid out on a table, clearly separated, none overlapping, all fully in frame.",
+  "kind": "count",
+  "concept": "folded towel",
+  "count": 3
+ },
+ {
+  "id": "count08",
+  "prompt": "Exactly 4 identical plain glass jars laid out on a table, clearly separated, none overlapping, all fully in frame.",
+  "kind": "count",
+  "concept": "glass jar",
+  "count": 4
+ },
+ {
+  "id": "count09",
+  "prompt": "Exactly 2 identical plain glass jars laid out on a table, clearly separated, none overlapping, all fully in frame.",
+  "kind": "count",
+  "concept": "glass jar",
+  "count": 2
+ },
+ {
+  "id": "color00",
+  "prompt": "One plain solid red t-shirt on a light neutral table, fully in frame.",
+  "kind": "color",
+  "concept": "t-shirt",
+  "color": "red"
+ },
+ {
+  "id": "color01",
+  "prompt": "One plain solid navy t-shirt on a light neutral table, fully in frame.",
+  "kind": "color",
+  "concept": "t-shirt",
+  "color": "navy"
+ },
+ {
+  "id": "color02",
+  "prompt": "One plain solid green backpack on a light neutral table, fully in frame.",
+  "kind": "color",
+  "concept": "backpack",
+  "color": "green"
+ },
+ {
+  "id": "color03",
+  "prompt": "One plain solid black backpack on a light neutral table, fully in frame.",
+  "kind": "color",
+  "concept": "backpack",
+  "color": "black"
+ },
+ {
+  "id": "color04",
+  "prompt": "One plain solid white sneaker on a light neutral table, fully in frame.",
+  "kind": "color",
+  "concept": "sneaker",
+  "color": "white"
+ },
+ {
+  "id": "color05",
+  "prompt": "One plain solid yellow sneaker on a light neutral table, fully in frame.",
+  "kind": "color",
+  "concept": "sneaker",
+  "color": "yellow"
+ },
+ {
+  "id": "color06",
+  "prompt": "One plain solid grey hoodie on a light neutral table, fully in frame.",
+  "kind": "color",
+  "concept": "hoodie",
+  "color": "grey"
+ },
+ {
+  "id": "color07",
+  "prompt": "One plain solid pink hoodie on a light neutral table, fully in frame.",
+  "kind": "color",
+  "concept": "hoodie",
+  "color": "pink"
+ },
+ {
+  "id": "feat00",
+  "prompt": "One plain grey hoodie laid flat with a hood and a full front zipper, fully in frame.",
+  "kind": "feature",
+  "concept": "hoodie",
+  "feature": "full front zipper",
+  "truth": true
+ },
+ {
+  "id": "feat01",
+  "prompt": "One plain grey hoodie laid flat with a hood, pullover style with no zipper at all, fully in frame.",
+  "kind": "feature",
+  "concept": "hoodie",
+  "feature": "full front zipper",
+  "truth": false
+ },
+ {
+  "id": "feat02",
+  "prompt": "One plain grey backpack laid flat with two side mesh water bottle pockets, fully in frame.",
+  "kind": "feature",
+  "concept": "backpack",
+  "feature": "side mesh pockets",
+  "truth": true
+ },
+ {
+  "id": "feat03",
+  "prompt": "One plain grey backpack laid flat with smooth sides without any side pockets, fully in frame.",
+  "kind": "feature",
+  "concept": "backpack",
+  "feature": "side mesh pockets",
+  "truth": false
+ },
+ {
+  "id": "feat04",
+  "prompt": "One plain grey shirt laid flat with long sleeves with buttons down the front, fully in frame.",
+  "kind": "feature",
+  "concept": "shirt",
+  "feature": "long sleeves",
+  "truth": true
+ },
+ {
+  "id": "feat05",
+  "prompt": "One plain grey shirt laid flat with short sleeves with buttons down the front, fully in frame.",
+  "kind": "feature",
+  "concept": "shirt",
+  "feature": "long sleeves",
+  "truth": false
+ },
+ {
+  "id": "hidden00",
+  "prompt": "A plain folded blue t-shirt from far away; no label is visible anywhere.",
+  "kind": "hidden",
+  "concept": "t-shirt"
+ },
+ {
+  "id": "hidden01",
+  "prompt": "A folded cream sweater seen from the front; no label is visible anywhere.",
+  "kind": "hidden",
+  "concept": "sweater"
+ },
+ {
+  "id": "hidden02",
+  "prompt": "Folded jeans from a distance; no label is visible anywhere.",
+  "kind": "hidden",
+  "concept": "pair of jeans"
+ },
+ {
+  "id": "hidden03",
+  "prompt": "A plain canvas tote bag; no label visible anywhere.",
+  "kind": "hidden",
+  "concept": "tote bag"
+ },
+ {
+  "id": "demo_wide",
+  "prompt": "One neatly folded plain black cotton t-shirt alone on a light oak table, seen from above, fully in frame. No text.",
+  "kind": "demo"
+ },
+ {
+  "id": "demo_label",
+  "prompt": "Extreme close-up of the white sewn-in care label inside the collar of a black t-shirt, held by fingers. Fully legible crisp black text reading exactly: 60% COTTON / 40% POLYESTER / MADE IN BANGLADESH",
+  "kind": "demo"
+ },
+ {
+  "id": "demo_far",
+  "prompt": "A black t-shirt lying flat on a light oak table photographed from far away, with a small white neck label barely visible, tiny in the frame.",
+  "kind": "demo"
+ }
+]

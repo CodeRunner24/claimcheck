@@ -1,0 +1,9 @@
+reflex==0.10.1
+httpx
+pillow
+python-dotenv
+opencv-python-headless
+numpy
+meta-sam-parser
+pytest
+playwright
