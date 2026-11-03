@@ -1,0 +1,128 @@
+{
+ "summary": {
+  "scenes": 12,
+  "measured": 6,
+  "median_error_pct": 0.2,
+  "max_error_pct": 0.7,
+  "true_claims_verified": 6,
+  "true_claims_wrongly_contradicted": 0,
+  "false_claims_contradicted": 6,
+  "false_claims_wrongly_verified": 0
+ },
+ "rows": [
+  {
+   "seed": 0,
+   "truth_mm": 256.4,
+   "items": 0,
+   "sheets": 1,
+   "measured_mm": null
+  },
+  {
+   "seed": 1,
+   "truth_mm": 272.5,
+   "items": 0,
+   "sheets": 1,
+   "measured_mm": null
+  },
+  {
+   "seed": 2,
+   "truth_mm": 290.6,
+   "items": 2,
+   "sheets": 2,
+   "measured_mm": 291.2,
+   "reason": "",
+   "ratio": 1.42,
+   "error_pct": 0.2,
+   "true_claim": "verified",
+   "false_claim": "contradicted"
+  },
+  {
+   "seed": 3,
+   "truth_mm": 218.0,
+   "items": 2,
+   "sheets": 2,
+   "measured_mm": 219.4,
+   "reason": "",
+   "ratio": 1.42,
+   "error_pct": 0.7,
+   "true_claim": "verified",
+   "false_claim": "contradicted"
+  },
+  {
+   "seed": 4,
+   "truth_mm": 138.6,
+   "items": 0,
+   "sheets": 1,
+   "measured_mm": null
+  },
+  {
+   "seed": 5,
+   "truth_mm": 253.5,
+   "items": 2,
+   "sheets": 2,
+   "measured_mm": 253.8,
+   "reason": "",
+   "ratio": 1.42,
+   "error_pct": 0.1,
+   "true_claim": "verified",
+   "false_claim": "contradicted"
+  },
+  {
+   "seed": 6,
+   "truth_mm": 268.0,
+   "items": 2,
+   "sheets": 2,
+   "measured_mm": 267.8,
+   "reason": "",
+   "ratio": 1.41,
+   "error_pct": 0.1,
+   "true_claim": "verified",
+   "false_claim": "contradicted"
+  },
+  {
+   "seed": 7,
+   "truth_mm": 147.2,
+   "items": 0,
+   "sheets": 1,
+   "measured_mm": null
+  },
+  {
+   "seed": 8,
+   "truth_mm": 293.2,
+   "items": 2,
+   "sheets": 1,
+   "measured_mm": 293.8,
+   "reason": "",
+   "ratio": 1.42,
+   "error_pct": 0.2,
+   "true_claim": "verified",
+   "false_claim": "contradicted"
+  },
+  {
+   "seed": 9,
+   "truth_mm": 187.2,
+   "items": 2,
+   "sheets": 1,
+   "measured_mm": 188.0,
+   "reason": "",
+   "ratio": 1.42,
+   "error_pct": 0.4,
+   "true_claim": "verified",
+   "false_claim": "contradicted"
+  },
+  {
+   "seed": 10,
+   "truth_mm": 197.2,
+   "items": 0,
+   "sheets": 2,
+   "measured_mm": null
+  },
+  {
+   "seed": 11,
+   "truth_mm": 220.8,
+   "items": 0,
+   "sheets": 2,
+   "measured_mm": null
+  }
+ ]
+}

@@ -1,151 +1,92 @@
-"""Record the demo video from the running app: real UI, live Meta API calls, narration by Windows SAPI.
+"""Record the silent backup demo from the running app in sample mode: real UI, live Meta API calls.
 
 Start `reflex run` first, then:  python -u scripts/record_demo.py
-Output: demo/claimcheck_demo.mp4   Progress goes to stdout; ffmpeg logs to demo/ffmpeg.log.
+Output: demo/claimcheck_demo.mp4. The strong version of this video is filmed with a real product; see the README.
 """
 import json
 import subprocess
 import sys
 import time
-import wave
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "demo"
-OUT.mkdir(exist_ok=True)
-TMP = OUT / "tmp"
-TMP.mkdir(exist_ok=True)
+sys.path.insert(0, str(ROOT))
+from claimcheck_core.take import FFMPEG
 
+OUT = ROOT / "demo"
+TMP = OUT / "tmp"
+TMP.mkdir(parents=True, exist_ok=True)
 ev = json.loads((ROOT / "eval" / "results_holdout.json").read_text(encoding="utf-8"))["summary"]
 st = json.loads((ROOT / "eval" / "results_stress.json").read_text(encoding="utf-8"))["summary"]
 right = round(ev["accuracy"] * ev["claims"])
-
-BEATS = {
-    "intro": "A listing promises a set of two, one hundred percent cotton, made in Portugal. The buyer finds out what's true only when the parcel arrives. ClaimCheck lets the seller find out first, with a camera.",
-    "claims": "Muse Spark splits the listing into claims a camera can prove. It skips comfortable and best seller, because no photo can prove those. Now the agent takes over and tells the seller what to show it.",
-    "shot1": "First shot, from far away. SAM three point one finds the t-shirt and its mask. The color is confirmed. But only one of two shirts is in frame. ClaimCheck doesn't call that a lie yet. The other one may just be out of shot, so it asks to see everything.",
-    "shot2": "Second shot, everything in the box. Still one, so now the count is contradicted. No care label is in sight, so it asks for a close-up, with a shot guide drawn by Muse Image. That's an illustration, and it never counts as evidence.",
-    "shot3": "The close-up. SAM isolates the label, Muse Spark reads it, and plain Python rules compare the values. Sixty percent cotton, not one hundred. Made in Bangladesh, not Portugal. Already settled claims aren't paid for twice.",
-    "evidence": "Every verdict keeps its evidence and the rule behind it. The models observe, the rules decide, and if evidence can't be seen, the answer is need evidence, never contradicted.",
-    "trace": "These are the live Meta model calls for this listing, with time and cost, under a hard spend cap in the code.",
-    "review": "Muse Spark drafts the correction, changing only the contradicted facts. A person edits it, approves it, and downloads the report. Nothing is published automatically.",
-    "eval": f"We measured it. On the held-out set of AI-generated test images, {right} of {ev['claims']} labelled claims were right, with zero false contradictions. On {st['claims']} deliberately damaged photos, it abstained every time. Real phone photos are the next test, and these scores don't cover them yet.",
-    "outro": "Everything shown was built during this hackathon, in Python and Reflex, on SAM three point one, Muse Spark, and Muse Image. ClaimCheck. Fix the listing before the buyer finds out.",
-}
+FONT = "https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap"
 
 
-def tts(key: str, text: str) -> float:
-    path = TMP / f"{key}.wav"
-    script = ("Add-Type -AssemblyName System.Speech; $s=New-Object System.Speech.Synthesis.SpeechSynthesizer; "
-              f"$s.Rate=1; $s.SetOutputToWaveFile('{path}'); $s.Speak(@'\n{text}\n'@); $s.Dispose()")
-    subprocess.run(["powershell", "-NoProfile", "-Command", script], check=True)
-    with wave.open(str(path)) as w:
-        return w.getnframes() / w.getframerate()
+def card(big: str, small: str = "") -> str:
+    return f"""<html><head><link href="{FONT}" rel="stylesheet"></head><body style="margin:0;height:100vh;box-sizing:border-box;background:#ffdd00;color:#111;
+    font-family:Archivo,Arial;padding:56px;display:flex;flex-direction:column;justify-content:space-between">
+    <div style="font-size:112px;line-height:.92;font-weight:900;font-stretch:75%;text-transform:uppercase;letter-spacing:-.02em">{big}</div>
+    <div style="font-size:30px;line-height:1.3;font-weight:500;max-width:1150px">{small}</div></body></html>"""
 
 
-def card(title: str, body: str) -> str:
-    return f"""<html><body style="margin:0;height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 120px;
-    box-sizing:border-box;background:#1f2280;color:white;font-family:'Segoe UI',sans-serif">
-    <div style="font-size:64px;font-weight:700;margin-bottom:28px">{title}</div>{body}</body></html>"""
-
-
-EVAL_CARD = card("Measured, and honest about it", f"""
-<table style="font-size:34px;border-spacing:0 16px">
-<tr><td style="padding-right:48px;font-weight:700">{right} / {ev['claims']}</td><td>held-out labelled claims correct</td></tr>
-<tr><td style="font-weight:700">{ev['false_contradictions']}</td><td>false contradictions on held-out claims</td></tr>
-<tr><td style="font-weight:700">{st['wrong']} / {st['claims']}</td><td>wrong verdicts on damaged photos (all abstained)</td></tr>
-<tr><td style="font-weight:700">${ev['usd_total'] / ev['claims']:.3f}</td><td>model cost per claim</td></tr></table>
-<div style="font-size:26px;margin-top:36px;color:#c7d0ff">Test images are AI-generated by Muse Image and checked by eye. Small sample. Real phone photos are not yet measured.</div>""")
-OUTRO_CARD = card("ClaimCheck", """<div style="font-size:36px;line-height:1.5">Fix the listing before the buyer finds out.</div>
-<div style="font-size:26px;margin-top:36px;color:#c7d0ff;line-height:1.6">Built during the hackathon: agent, rules, evaluation, Reflex UI<br>
-Meta models: SAM 3.1 · Muse Spark 1.3 · Muse Image<br>Sample shots in this video are AI-generated. Voice-over is synthetic.</div>""")
-CURSOR = """addEventListener('DOMContentLoaded',()=>{const c=document.createElement('div');
-c.style='position:fixed;width:22px;height:22px;border-radius:50%;background:rgba(255,80,60,.55);border:2px solid #fff;z-index:99999;pointer-events:none;transition:all .25s;left:-50px;top:-50px;box-shadow:0 0 6px #0006';
-document.documentElement.appendChild(c);addEventListener('mousemove',e=>{c.style.left=e.clientX-11+'px';c.style.top=e.clientY-11+'px'});});"""
+INTRO = card("Listings are written from memory.", "Buyers find out what's true when they open the parcel. Sellers should find out first.")
+HOW = card("Models observe. Rules decide.",
+           "SAM 3.1 finds and tracks the evidence. Muse Spark reads it. Muse Voice hears the seller. Muse Image draws only the background. "
+           "Plain Python decides counts, percentages and colors. If the evidence can't be seen, the answer is &ldquo;not settled&rdquo;, never &ldquo;wrong&rdquo;.")
+SCORE = card(f"{right} of {ev['claims']} right. {ev['false_contradictions']} false alarms.",
+             f"Held-out test on AI-generated images. {st['claims']} damaged photos: {st['wrong']} wrong, all left open. "
+             "This clip and its seller are AI-generated and scripted, and real phone photos are not measured yet. Built during the hackathon.")
 
 
 def main():
-    durations = {k: tts(k, v) for k, v in BEATS.items()}
-    print("narration seconds", round(sum(durations.values()), 1), flush=True)
-    starts: dict[str, float] = {}
     with sync_playwright() as p:
-        browser = p.chromium.launch()
-        ctx = browser.new_context(viewport={"width": 1440, "height": 900}, record_video_dir=str(TMP),
-                                  record_video_size={"width": 1440, "height": 900})
-        ctx.add_init_script(CURSOR)
+        browser = p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
+        ctx = browser.new_context(viewport={"width": 1440, "height": 810}, record_video_dir=str(TMP),
+                                  record_video_size={"width": 1440, "height": 810})
         pg = ctx.new_page()
         t0 = time.time()
         pg.goto("http://localhost:3000", wait_until="networkidle", timeout=180000)
-        clip_start = time.time() - t0
-
-        def beat(key, action=None, settle=None):
-            start = time.time()
-            starts[key] = start - t0
-            print("beat", key, round(starts[key], 1), flush=True)
-            if action:
-                action()
-            if settle:
-                settle()
-            left = durations[key] + 0.5 - (time.time() - start)
-            if left > 0:
-                pg.wait_for_timeout(int(left * 1000))
-
-        def click(locator):
-            locator.hover()
+        pg.wait_for_selector("#go-sample")
+        start_clip = time.time() - t0
+        pg.set_content(INTRO)
+        pg.wait_for_timeout(4500)
+        pg.goto("http://localhost:3000", wait_until="networkidle")
+        pg.wait_for_selector("#go-sample")
+        pg.wait_for_timeout(3500)
+        pg.click("#go-sample")
+        pg.wait_for_selector("#cc-tag", timeout=30000)
+        print("live", round(time.time() - t0, 1), flush=True)
+        while pg.locator("#finish").count() and time.time() - t0 < 200:
             pg.wait_for_timeout(300)
-            locator.click()
-
-        def idle():
-            pg.wait_for_timeout(800)
-            pg.wait_for_function("!document.querySelector('.rt-Spinner')", timeout=120000)
-            pg.wait_for_timeout(400)
-
-        beat("intro")
-        beat("claims", lambda: click(pg.get_by_role("button", name="Check this listing")),
-             lambda: (pg.wait_for_selector(".claim", timeout=90000), idle()))
-        for i in range(3):
-            beat(f"shot{i + 1}", lambda i=i: click(pg.locator(f"#sample-{i}")), idle)
-        def open_evidence():
-            click(pg.locator('.claim[data-verdict="contradicted"]').nth(1).get_by_role("button", name="Evidence"))
-        beat("evidence", open_evidence)
-        pg.get_by_role("button", name="Close").click()
-        def to_trace():
-            pg.get_by_text("Live Meta model calls").scroll_into_view_if_needed()
-            pg.get_by_text("Live Meta model calls").hover()
-        beat("trace", to_trace)
-        pg.evaluate("window.scrollTo(0,0)")
-        def draft():
-            click(pg.get_by_role("button", name="Draft corrected listing"))
-            pg.get_by_role("button", name="Approve and download report").wait_for(timeout=90000)
-        def approve():
-            pg.wait_for_timeout(int(durations["review"] * 600))
-            click(pg.get_by_role("button", name="Approve and download report"))
-        beat("review", draft, approve)
-        beat("eval", lambda: pg.set_content(EVAL_CARD))
-        beat("outro", lambda: pg.set_content(OUTRO_CARD))
-        pg.wait_for_timeout(600)
+        cut_from = time.time() - t0 + 1.5
+        print("cutting", round(cut_from, 1), flush=True)
+        pg.wait_for_selector("#approve", timeout=240000)
+        cut_to = time.time() - t0 - 1.0
+        print("reveal", round(cut_to, 1), flush=True)
+        pg.wait_for_timeout(5000)
+        pg.locator("#cc-reel").scroll_into_view_if_needed()
+        pg.wait_for_timeout(9000)
+        pg.locator("summary").click()
+        pg.locator("summary").scroll_into_view_if_needed()
+        pg.mouse.wheel(0, 1200)
+        pg.wait_for_timeout(5000)
+        pg.set_content(HOW)
+        pg.wait_for_timeout(6500)
+        pg.set_content(SCORE)
+        pg.wait_for_timeout(6500)
         total = time.time() - t0
         video = pg.video.path()
         ctx.close()
         browser.close()
 
-    inputs, filters = [], []
-    for n, (key, at) in enumerate(starts.items(), start=1):
-        inputs += ["-i", str(TMP / f"{key}.wav")]
-        delay = int((at - clip_start + 0.4) * 1000)
-        filters.append(f"[{n}:a]aresample=48000,adelay={delay}|{delay},aformat=channel_layouts=stereo[a{n}]")
-    mix = "".join(f"[a{n}]" for n in range(1, len(starts) + 1))
-    filters.append(f"{mix}amix=inputs={len(starts)}:normalize=0,alimiter=limit=0.95[a]")
-    out = OUT / "claimcheck_demo.mp4"
+    keep = f"between(t,{start_clip:.2f},{cut_from:.2f})+between(t,{cut_to:.2f},{total:.2f})"
     with open(OUT / "ffmpeg.log", "w") as log:
-        subprocess.run(["ffmpeg", "-y", "-ss", str(clip_start), "-i", str(video), *inputs,
-                        "-filter_complex", ";".join(filters), "-map", "0:v", "-map", "[a]",
-                        "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-r", "25",
-                        "-c:a", "aac", "-b:a", "160k", "-shortest", str(out)],
-                       check=True, stdout=log, stderr=subprocess.STDOUT)
-    print("video", out, "recorded seconds", round(total - clip_start, 1), flush=True)
+        subprocess.run([FFMPEG, "-y", "-i", str(video), "-vf", f"select='{keep}',setpts=N/FRAME_RATE/TB", "-r", "25",
+                        "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-an",
+                        str(OUT / "claimcheck_demo.mp4")], check=True, stdout=log, stderr=subprocess.STDOUT)
+    print("video", OUT / "claimcheck_demo.mp4", flush=True)
 
 
 if __name__ == "__main__":

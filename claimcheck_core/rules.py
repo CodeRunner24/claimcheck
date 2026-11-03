@@ -96,6 +96,31 @@ def color_of(text: str) -> str | None:
     return None
 
 
+def parse_length_mm(text) -> float | None:
+    """'32 cm', '320mm', '1.2 m', '12 inch' or 12" to millimetres."""
+    m = re.search(r'(\d+(?:[.,]\d+)?)\s*(mm|cm|metre|meter|m|inch|in|")(?![a-z])', str(text).casefold())
+    if not m:
+        return None
+    value = float(m.group(1).replace(",", "."))
+    return value * {"mm": 1, "cm": 10, "m": 1000, "metre": 1000, "meter": 1000, "inch": 25.4, "in": 25.4, '"': 25.4}[m.group(2)]
+
+
+def decide_measure(claimed, measured_mm: float | None, ok_within: float = 0.08, wrong_beyond: float = 0.20) -> dict:
+    """A photo ruler is rough, so there is a gap between 'matches' and 'contradicted' where it abstains."""
+    want = parse_length_mm(claimed)
+    if want is None:
+        return _result(NOT_VISIBLE, "length_unparsed", f"Could not parse claimed length: {claimed}")
+    if measured_mm is None:
+        return _result(NOT_VISIBLE, "need_reference", "No usable reference in the frame.")
+    off = abs(measured_mm - want) / want
+    detail = f"Claimed {want / 10:g} cm, measured {measured_mm / 10:.1f} cm ({off:.0%} off)."
+    if off <= ok_within:
+        return _result(VERIFIED, "measure_within_tolerance", detail)
+    if off >= wrong_beyond:
+        return _result(CONTRADICTED, "measure_outside_tolerance", detail)
+    return _result(NOT_VISIBLE, "measure_uncertain", detail)
+
+
 def _fmt_comp(comp: dict[str, float]) -> str:
     return ", ".join(f"{v:g}% {k}" for k, v in comp.items())
 
@@ -113,6 +138,11 @@ def decide(check: str, claimed, observation: dict, sam_count: int | None = None,
     if not observation.get("visible"):
         return _result(NOT_VISIBLE, "evidence_not_visible", observation.get("reason") or "Evidence not visible.")
     observed = observation.get("observed")
+
+    if check == "read":  # the seller promised nothing here: whatever is legibly printed simply becomes the fact
+        if observed and str(observed).strip():
+            return _result(VERIFIED, "read_from_evidence", f"Read directly from the evidence: {observed}.")
+        return _result(NOT_VISIBLE, "nothing_to_read", observation.get("reason") or "Nothing legible.")
 
     if check == "count":
         want, spark = parse_count(claimed), parse_count(observed)

@@ -4,6 +4,9 @@ pillow
 python-dotenv
 opencv-python-headless
 numpy
-meta-sam-parser
+meta-sam-parser==0.1.0
+numba
+imageio-ffmpeg
 pytest
 playwright
+websockets

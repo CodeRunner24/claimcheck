@@ -6,7 +6,7 @@
   "correct_despite_damage": 0,
   "errors": 0,
   "wrong_by_damage": {},
-  "usd_total": 0.1328
+  "usd_total": 0.151
  },
  "results": [
   {
@@ -82,9 +82,9 @@
    "truth": "verified",
    "got": "not_visible",
    "rule": "evidence_not_visible",
-   "observed": "60% COTTON / 40% [remainder cut off]",
+   "observed": "60% COTTON / 40%",
    "wrong": false,
-   "usd": 0.00618755
+   "usd": 0.007963000000000001
   },
   {
    "damage": "right_half_cut",
@@ -93,9 +93,9 @@
    "truth": "contradicted",
    "got": "not_visible",
    "rule": "evidence_not_visible",
-   "observed": "60% COTTON / 40%",
+   "observed": "60% COTTON / 40% [fibre name cut off]",
    "wrong": false,
-   "usd": 0.00736055
+   "usd": 0.00999875
   },
   {
    "damage": "heavy_blur",
@@ -260,7 +260,7 @@
    "rule": "evidence_not_visible",
    "observed": "100% POLY",
    "wrong": false,
-   "usd": 0.0063265000000000005
+   "usd": 0.00831575
   },
   {
    "damage": "right_half_cut",
@@ -271,7 +271,7 @@
    "rule": "evidence_not_visible",
    "observed": "100% POLY",
    "wrong": false,
-   "usd": 0.00612505
+   "usd": 0.01221555
   },
   {
    "damage": "heavy_blur",
@@ -346,9 +346,9 @@
    "truth": "verified",
    "got": "not_visible",
    "rule": "evidence_not_visible",
-   "observed": "70% VISCOSI",
+   "observed": "70% VISCOS",
    "wrong": false,
-   "usd": 0.0066468
+   "usd": 0.00859825
   },
   {
    "damage": "right_half_cut",
@@ -357,9 +357,9 @@
    "truth": "contradicted",
    "got": "not_visible",
    "rule": "evidence_not_visible",
-   "observed": "70% VISCOSI",
+   "observed": "70% VISCOS",
    "wrong": false,
-   "usd": 0.00717305
+   "usd": 0.00830955
   },
   {
    "damage": "heavy_blur",
@@ -434,9 +434,9 @@
    "truth": "verified",
    "got": "not_visible",
    "rule": "evidence_not_visible",
-   "observed": "%100 PA",
+   "observed": "%100 PA [truncated]",
    "wrong": false,
-   "usd": 0.006522100000000001
+   "usd": 0.00811955
   },
   {
    "damage": "right_half_cut",
@@ -445,9 +445,9 @@
    "truth": "contradicted",
    "got": "not_visible",
    "rule": "evidence_not_visible",
-   "observed": "%100 PA",
+   "observed": "%100 PA [truncated]",
    "wrong": false,
-   "usd": 0.006412550000000001
+   "usd": 0.0075250000000000004
   }
  ]
 }
