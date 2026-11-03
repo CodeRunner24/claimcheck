@@ -68,6 +68,8 @@
     cc.segment = SAMPLE[name];
     const v = video();
     if (v) v.currentTime = cc.segment[0];
+    const stale = document.querySelector(".masks svg");  // that mask belonged to the previous shot
+    if (stale) stale.remove();
   };
 
   cc.capture = (maxSide = 1024) => {

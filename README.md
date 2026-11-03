@@ -42,6 +42,19 @@ flowchart LR
 | **Muse Spark 1.3** | Turns speech into checkable facts, takes the first look, reads evidence, writes the listing |
 | **Muse Image 1.0** | Generates only the empty background behind the real product |
 
+## Where things live
+
+| Path | Responsibility |
+|---|---|
+| [`claimcheck_core/listening.py`](claimcheck_core/listening.py) | Speech and first look become claims |
+| [`claimcheck_core/director.py`](claimcheck_core/director.py) | The live loop that coaches the seller |
+| [`claimcheck_core/perception.py`](claimcheck_core/perception.py) | Frame to observation to recorded verdict |
+| [`claimcheck_core/rules.py`](claimcheck_core/rules.py) | Pure functions that decide; no model calls |
+| [`claimcheck_core/vision.py`](claimcheck_core/vision.py), [`fastmask.py`](claimcheck_core/fastmask.py) | Masks, flattening, measuring, the photo |
+| [`claimcheck_core/take.py`](claimcheck_core/take.py), [`finishing.py`](claimcheck_core/finishing.py) | Video handling, listing text, proof reel |
+| [`claimcheck_core/speech.py`](claimcheck_core/speech.py), [`meta_api.py`](claimcheck_core/meta_api.py) | Meta API clients, spend cap, call trace |
+| [`claimcheck/`](claimcheck/) | Reflex state, views and media routes; no decisions |
+
 ## Engineering worth a look
 
 - **The models observe; the rules decide.** Counts, fibre percentages and colors are decided in [`rules.py`](claimcheck_core/rules.py). Other visual facts and differently worded text rest on Spark's judgement, and the verdict records which rule applied.

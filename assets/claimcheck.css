@@ -27,6 +27,10 @@ html, body { margin: 0; background: var(--black); }
 .stage { position: relative; width: min(100vw, calc(100vh * var(--ratio, 1.778))); aspect-ratio: var(--ratio, 1.778); background: #000; overflow: hidden; }
 .stage video, .frozen { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .masks, .masks svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* A mask is about a second old. If no new one arrives it fades, so it never sits on the wrong thing after the camera moves. */
+.masks svg { animation: mask-life 2.4s ease-in forwards; }
+.frozen ~ .masks svg { animation: none; }
+@keyframes mask-life { 0%, 60% { opacity: 1; } 100% { opacity: 0; } }
 .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; animation: shutter .3s ease-out; }
 @keyframes shutter { 0% { opacity: .9; } 100% { opacity: 0; } }
 
